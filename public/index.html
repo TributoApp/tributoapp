@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>TributoApp</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-XXXXXXXXXX');
+</script>
+
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+<!-- Navbar -->
+<header class="bg-white shadow-md p-4 flex justify-between items-center">
+  <a href="/index.html" class="text-4xl font-bold text-blue-600 hover:underline">TributoApp</a>
+  <nav class="hidden md:flex space-x-6 text-lg">
+    <a href="/facturacion.html" class="text-gray-700 hover:text-blue-600 font-medium">Facturación</a>
+    <a href="/ivaeiibb.html" class="text-gray-700 hover:text-blue-600 font-medium">IIBB</a>
+    <a href="/contabilidad.html" class="text-gray-700 hover:text-blue-600 font-medium">Contabilidad</a>
+    <a href="/precios.html" class="text-gray-700 hover:text-blue-600 font-medium">Precios</a>
+  </nav>
+  <div class="flex space-x-4">
+    <a href="/login.html" class="text-blue-600 hover:underline text-lg py-2">Iniciar Sesión</a>
+    <a href="/register.html" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-lg">Registrarse</a>
+  </div>
+</header>
+
+<!-- Hero principal -->
+<main class="relative text-center py-8 px-4 min-h-screen bg-cover bg-center bg-no-repeat" style="background-image: url('/img/fondo ppal.png');">
+  <div class="absolute inset-0 bg-white bg-opacity-70 z-0"></div>
+  <div class="relative z-10 w-full p-8 rounded-lg">
+    <h2 class="text-3xl sm:text-4xl font-bold mb-6 text-gray-900">
+      ¿No sabés cómo manejar tus impuestos?
+    </h2>
+    <p class="text-lg sm:text-xl text-gray-700 mb-6">
+      Con <span class="text-blue-600 font-semibold">TributoApp</span> vas a poder gestionar todo desde un solo lugar y con asesoría constante.
+    </p>
+
+    <a href="/register.html" class="bg-blue-600 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700 mb-6 inline-block">
+      Comenzá ahora GRATIS
+    </a>
+    <p class="text-lg text-gray-800 font-bold mb-8">Los primeros 30 días son GRATIS, sin tarjetas ni compromisos.</p>
+
+    <!-- 🔥 NUEVO MENSAJE DESTACADO -->
+    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4 mb-10 max-w-3xl mx-auto text-left rounded">
+      <h3 class="font-bold text-lg mb-2">💡 ¿Sabías que…?</h3>
+      <p class="text-md">
+        <strong>TributoApp</strong> es el único lugar donde podés tomar lo que te cobran los <strong>Bancos</strong> y <strong>Mercado Pago</strong> por transferencias como <u>pago a cuenta de Ingresos Brutos</u>. 
+        ¡No pierdas más plata sin saberlo!
+      </p>
+    </div>
+
+    <h1 class="text-4xl font-bold mt-10 mb-4 text-blue-800">Gestioná tus impuestos de forma simple</h1>
+    <p class="text-lg mb-8 text-gray-800">Automatizá la emisión de facturas, estimá tus impuestos y mantenete al día con AFIP e Ingresos Brutos desde un solo lugar.</p>
+
+    <div class="mt-8 text-left w-full max-w-3xl mx-auto">
+      <h2 class="text-xl font-semibold mb-2">Soluciones:</h2>
+      <ul class="list-disc list-inside text-gray-800 space-y-1">
+        <li>Alta de Monotributo <strong>GRATIS</strong></li>
+        <li>Generación y carga de facturas</li>
+        <li>Estimación de IVA e Ingresos Brutos (Rentas)</li>
+        <li>Llevá tu contabilidad desde un solo lugar</li>
+        <li>Tutoriales paso a paso para pagar impuestos</li>
+        <li>Asistencia 24/7 para todas tus dudas</li>
+      </ul>
+    </div>
+  </div>
+</main>
+
+
+<!-- Beneficios -->
+<section class="bg-gray-100 py-16">
+  <div class="max-w-6xl mx-auto px-4">
+    <h2 class="text-3xl font-bold text-center text-blue-700 mb-12">¿Por qué elegir TributoApp?</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 text-center">
+      <div>
+        <h4 class="text-xl font-semibold mb-2">Facturación Simple</h4>
+        <p>Emití facturas en segundos y recibilas por WhatsApp.</p>
+      </div>
+      <div>
+        <h4 class="text-xl font-semibold mb-2">Panel Contable</h4>
+        <p>Seguimiento de ingresos, gastos e impuestos estimados.</p>
+      </div>
+      <div>
+        <h4 class="text-xl font-semibold mb-2">IIBB y Formularios</h4>
+        <p>Te facilitamos todos los trámites con Rentas.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonios -->
+<section class="bg-white py-16">
+  <div class="max-w-5xl mx-auto px-4">
+    <h2 class="text-3xl font-bold text-center text-blue-700 mb-12">Lo que dicen nuestros usuarios</h2>
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="bg-gray-50 p-6 rounded shadow">
+        <p>"Con TributoApp no me olvido más de facturar ni de los pagos. Todo me llega al WhatsApp y puedo llevar mi contabilidad sin contador."</p>
+        <p class="mt-3 font-semibold text-blue-700">– Florencia, Diseñadora freelance</p>
+      </div>
+      <div class="bg-gray-50 p-6 rounded shadow">
+        <p>"La mejor herramienta para monotributistas. Facturo, controlo mis ingresos y me avisan cuándo vence todo. Muy recomendable."</p>
+        <p class="mt-3 font-semibold text-blue-700">– Juan, Desarrollador independiente</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-blue-700 text-white py-6 mt-10">
+  <div class="max-w-6xl mx-auto text-center px-4">
+    <p>&copy; 2025 TributoApp · Hecho en Argentina 🇦🇷</p>
+    <p class="mt-1 text-sm">Contáctanos por WhatsApp para atención personalizada</p>
+    <a href="/legales.html" class="text-gray-600 hover:text-blue-600 text-sm">Términos y Privacidad</a>
+
+  </div>
+</footer>
+<!-- Botón flotante de WhatsApp -->
+<a href="https://api.whatsapp.com/send?phone=5493764246978&text=Hola!%20Quiero%20más%20información%20sobre%20TributoApp" 
+   class="fixed bottom-6 right-6 z-50 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition duration-300"
+   target="_blank" rel="noopener noreferrer"
+   aria-label="Contacto por WhatsApp">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M20.52 3.48A11.78 11.78 0 0012.05 1C6.29 1 1.5 5.79 1.5 11.55c0 2.04.54 4.03 1.58 5.77L1 23l5.8-1.52A11.65 11.65 0 0012.05 22c5.75 0 10.55-4.79 10.55-10.55 0-2.81-1.1-5.44-3.08-7.42zM12.05 20a9.49 9.49 0 01-4.88-1.34l-.35-.2-3.45.91.92-3.36-.23-.35a9.54 9.54 0 0114.65-11.38 9.52 9.52 0 01-6.66 16.72z"/>
+    <path d="M17.25 14.58c-.29-.14-1.7-.84-1.96-.94s-.46-.14-.65.15-.75.94-.91 1.13-.34.21-.63.07a7.86 7.86 0 01-2.3-1.41 8.4 8.4 0 01-1.56-1.92c-.16-.28 0-.44.12-.59s.29-.34.44-.51a1.9 1.9 0 00.29-.48.54.54 0 000-.52c-.14-.14-.65-1.57-.9-2.15s-.48-.5-.65-.51h-.56a1.09 1.09 0 00-.79.37 3.33 3.33 0 00-1 2.45c0 1.43 1.04 2.8 1.19 3 .15.2 2.05 3.26 5.06 4.4a6.24 6.24 0 003.6.37c1.1-.16 1.7-.77 1.93-1.21a2.33 2.33 0 00.16-1.21c-.06-.1-.27-.16-.56-.3z"/>
+  </svg>
+</a>
+
+</body>
+</html>
+

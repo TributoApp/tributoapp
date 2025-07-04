@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Login | TributoApp</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- Navbar -->
+<header class="bg-white shadow-md p-4 flex justify-between items-center">
+  <!-- Logo con enlace a la página principal -->
+  <a href="/index.html" class="text-4xl font-bold text-blue-600 hover:underline">
+    TributoApp
+  </a>
+</header>
+
+<main class="bg-gray-100 text-gray-800 flex items-center justify-center h-screen">
+
+  <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
+    <h2 class="text-2xl font-bold text-center text-blue-600 mb-6">Iniciar sesión</h2>
+    <form id="loginForm" class="space-y-4">
+      <input type="email" id="email" placeholder="Email" class="w-full p-3 border border-gray-300 rounded" required>
+      <input type="password" id="password" placeholder="Contraseña" class="w-full p-3 border border-gray-300 rounded" required>
+      <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded hover:bg-blue-700">Ingresar</button>
+    </form>
+    <p class="mt-4 text-center text-sm">¿No tenés cuenta? <a href="/register.html" class="text-blue-600 hover:underline">Registrate</a></p>
+    <p id="error" class="text-red-600 text-center mt-4"></p>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+       
+        const data = await res.json();
+
+
+          if (res.ok) {
+            localStorage.setItem('token', data.token);
+
+            if (data.usuario && data.usuario.cuit) {
+              localStorage.setItem('cuit_usuario', data.usuario.cuit);
+              localStorage.setItem('iibb', data.usuario.iibb ?? 3.5);
+              localStorage.setItem('fin_prueba', data.usuario.fin_prueba);
+
+            }
+
+         setTimeout(() => {
+    window.location.href = '/dashboard.html';
+  }, );
+          } else {
+            document.getElementById('error').textContent = data.message || 'Error al iniciar sesión';
+          }
+        } catch (err) {
+          document.getElementById('error').textContent = 'Error de conexión con el servidor.';
+        }
+      });
+  </script>
+</main>
+
+</html>
+

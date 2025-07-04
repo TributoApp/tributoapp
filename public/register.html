@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registrarse | TributoApp</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+<!-- Navbar -->
+<header class="bg-white shadow-md p-4 flex justify-between items-center">
+  <a href="/index.html" class="text-4xl font-bold text-blue-600 hover:underline">
+    TributoApp
+  </a>
+</header>
+
+<main class="bg-gray-100 flex items-center justify-center h-screen">
+  <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
+    <h2 class="text-2xl font-bold text-center text-blue-600 mb-6">Crear cuenta</h2>
+
+    <form id="registroForm" class="space-y-4">
+      <input type="text" name="nombre" placeholder="Nombre completo" class="w-full p-3 border border-gray-300 rounded" required>
+      <input type="email" name="email" placeholder="Email" class="w-full p-3 border border-gray-300 rounded" required>
+      <input type="text" name="cuit" placeholder="CUIT (11 dígitos)" class="w-full p-3 border border-gray-300 rounded" required>
+      <input type="password" name="password" placeholder="Contraseña" class="w-full p-3 border border-gray-300 rounded" required>
+      <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded hover:bg-blue-700">Registrarse</button>
+
+      <p class="text-sm text-gray-600 mt-4">
+        Al registrarte, aceptás nuestros 
+        <a href="/legales.html" target="_blank" class="text-blue-600 hover:underline">Términos y Condiciones</a>.
+      </p>
+    </form>
+
+    <p id="registroError" class="text-red-600 text-sm text-center mt-4"></p>
+
+    <p class="mt-4 text-center text-sm">
+      ¿Ya tenés cuenta? <a href="/login.html" class="text-blue-600 hover:underline">Iniciar sesión</a>
+    </p>
+  </div>
+</main>
+
+<script>
+document.getElementById('registroForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const form = e.target;
+  const data = Object.fromEntries(new FormData(form).entries());
+  const errorElem = document.getElementById('registroError');
+  errorElem.textContent = '';
+
+  // ✅ Validación de CUIT
+  if (!/^\d{11}$/.test(data.cuit)) {
+    errorElem.textContent = "El CUIT debe tener exactamente 11 dígitos numéricos.";
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    const result = await res.json();
+
+    if (res.ok) {
+      alert("✅ Usuario registrado correctamente. Ahora podés iniciar sesión.");
+      window.location.href = '/login.html';
+    } else {
+      errorElem.textContent = result.message || '❌ Error al registrarse.';
+    }
+  } catch (err) {
+    errorElem.textContent = '❌ Error de conexión con el servidor.';
+  }
+});
+</script>
+
+</body>
+</html>
+
+

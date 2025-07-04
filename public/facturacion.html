@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Facturación | TributoApp</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- Navbar -->
+<header class="bg-white shadow-md p-4 flex justify-between items-center">
+  <!-- Logo con enlace a la página principal -->
+  <a href="/index.html" class="text-4xl font-bold text-blue-600 hover:underline">
+    TributoApp
+  </a>
+
+  <!-- Menú de navegación -->
+  <nav class="hidden md:flex space-x-6 text-lg">
+    <a href="/facturacion.html" class="text-gray-700 hover:text-blue-600 font-medium">Facturación</a>
+    <a href="/ivaeiibb.html" class="text-gray-700 hover:text-blue-600 font-medium">IIBB</a>
+    <a href="/contabilidad.html" class="text-gray-700 hover:text-blue-600 font-medium">Contabilidad</a>
+    <a href="/precios.html" class="text-gray-700 hover:text-blue-600 font-medium">Precios</a>
+  </nav>
+
+  <!-- Botones de sesión -->
+  <div class="flex space-x-4">
+    <a href="/login.html" class="text-blue-600 hover:underline text-lg py-2">Iniciar Sesión</a>
+    <a href="/register.html" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-lg">Registrarse</a>
+  </div>
+</header>
+
+<!-- Facturación -->
+  <!-- Main Content -->
+<main class="max-w-5xl mx-auto py-16 px-6">
+    <h1 class="text-4xl font-bold text-center text-blue-700 mb-6">Facturación electrónica fácil y rápida</h1>
+    <p class="text-lg text-gray-700 text-center mb-10">
+      Emití tus facturas electrónicas en segundos y formularios de manera simple. Todo desde un solo lugar, sin complicaciones.
+    </p>
+
+    <div class="grid gap-8 md:grid-cols-2">
+      <!-- Función 1 -->
+      <div class="bg-gray-100 p-6 rounded-lg shadow-md text-left">
+        <h2 class="text-2xl font-semibold text-blue-600 mb-2">Hacé facturas electrónicas</h2>
+        <p class="text-gray-700">
+          Emití Factura C (o futuras A/B) con apenas un click. El sistema se conecta directamente con AFIP para que no tengas que preocuparte por nada técnico.
+        </p>
+      </div>
+
+      <!-- Función 2 -->
+      <div class="bg-gray-100 p-6 rounded-lg shadow-md text-left">
+        <h2 class="text-2xl font-semibold text-blue-600 mb-2">Lleva un registro de tus gastos</h2>
+        <p class="text-gray-700">
+          Tributo App mantiene tus facturas organizadas cargando los comprobantes que recibís. Así podés llevar un control claro de tus facturaciones e impuestos.
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-12">
+      <p class="text-xl font-medium text-gray-800 mb-4">¿Por qué elegir TributoApp?</p>
+      <ul class="list-disc list-inside text-left max-w-2xl mx-auto text-gray-700 space-y-2">
+        <li>✅ Interfaz simple y moderna</li>
+        <li>✅ Conexión directa con AFIP</li>
+        <li>✅ Emití en menos de 1 minuto</li>
+        <li>✅ Todo desde el mismo panel</li>
+      </ul>
+    </div>
+  </div>
+  <div class="mt-10 text-center">
+      <a href="/register.html" class="bg-blue-600 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700">
+        Empezá a facturar GRATIS
+      </a>
+    </div>
+</section>
+<!-- Botón flotante de WhatsApp -->
+<a href="https://api.whatsapp.com/send?phone=5493764246978&text=Hola!%20Quiero%20más%20información%20sobre%20TributoApp" 
+   class="fixed bottom-6 right-6 z-50 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition duration-300"
+   target="_blank" rel="noopener noreferrer"
+   aria-label="Contacto por WhatsApp">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M20.52 3.48A11.78 11.78 0 0012.05 1C6.29 1 1.5 5.79 1.5 11.55c0 2.04.54 4.03 1.58 5.77L1 23l5.8-1.52A11.65 11.65 0 0012.05 22c5.75 0 10.55-4.79 10.55-10.55 0-2.81-1.1-5.44-3.08-7.42zM12.05 20a9.49 9.49 0 01-4.88-1.34l-.35-.2-3.45.91.92-3.36-.23-.35a9.54 9.54 0 0114.65-11.38 9.52 9.52 0 01-6.66 16.72z"/>
+    <path d="M17.25 14.58c-.29-.14-1.7-.84-1.96-.94s-.46-.14-.65.15-.75.94-.91 1.13-.34.21-.63.07a7.86 7.86 0 01-2.3-1.41 8.4 8.4 0 01-1.56-1.92c-.16-.28 0-.44.12-.59s.29-.34.44-.51a1.9 1.9 0 00.29-.48.54.54 0 000-.52c-.14-.14-.65-1.57-.9-2.15s-.48-.5-.65-.51h-.56a1.09 1.09 0 00-.79.37 3.33 3.33 0 00-1 2.45c0 1.43 1.04 2.8 1.19 3 .15.2 2.05 3.26 5.06 4.4a6.24 6.24 0 003.6.37c1.1-.16 1.7-.77 1.93-1.21a2.33 2.33 0 00.16-1.21c-.06-.1-.27-.16-.56-.3z"/>
+  </svg>
+</a>
+
+</body>
+</main>
+<!-- Footer -->
+<footer class="bg-blue-700 text-white py-6 mt-10">
+  <div class="max-w-6xl mx-auto text-center px-4">
+    <p>&copy; 2025 TributoApp · Hecho en Argentina 🇦🇷</p>
+    <p class="mt-1 text-sm">Contáctanos por WhatsApp para atención personalizada</p>
+    <a href="/legales.html" class="text-gray-600 hover:text-blue-600 text-sm">Términos y Privacidad</a>
+</footer>

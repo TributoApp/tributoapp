@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Precios | TributoApp</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-XXXXXXXXXX');
+</script>
+
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+  <!-- Header -->
+  <header class="bg-white shadow-md p-4 flex justify-between items-center">
+    <a href="/index.html" class="text-4xl font-bold text-blue-600 hover:underline">
+      TributoApp
+    </a>
+  <nav class="hidden md:flex space-x-6 text-lg">
+    <a href="/facturacion.html" class="text-gray-700 hover:text-blue-600 font-medium">Facturación</a>
+    <a href="/ivaeiibb.html" class="text-gray-700 hover:text-blue-600 font-medium">IIBB</a>
+    <a href="/contabilidad.html" class="text-gray-700 hover:text-blue-600 font-medium">Contabilidad</a>
+    <a href="/precios.html" class="text-gray-700 hover:text-blue-600 font-medium">Precios</a>
+  </nav>
+    <div class="flex space-x-4">
+      <a href="/login.html" class="text-blue-600 hover:underline py-2 text-lg">Iniciar Sesión</a>
+      <a href="/register.html" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-lg">Registrarse</a>
+    </div>
+  </header>
+
+ <!-- Main Content -->
+    <main class="w-full max-w-screen-xl mx-auto py-16 px-6">
+
+    <!-- Título principal -->
+    <h1 class="text-4xl font-bold text-center text-blue-700 mb-4">
+      Planes disponibles
+    </h1>
+    
+    <!-- Planes -->
+<div class="flex flex-wrap lg:flex-nowrap justify-center gap-6 w-full max-w-screen-xl mx-auto mt-10">
+
+  <!-- Plan Gratuito -->
+  <div class="bg-white border border-blue-300 p-6 rounded-lg shadow-md w-80 flex flex-col justify-between text-center">
+    <div>
+      <h3 class="text-xl font-semibold text-blue-600 mb-2">Gratis</h3>
+      <p class="text-gray-700 mb-4">Probá todas las funcionalidades de la autogestión sin costo por 30 días.</p>
+      <ul class="text-sm text-gray-600 list-disc list-inside mb-6 text-left">
+        <li>Generación de facturas ilimitada</li>
+        <li>Generación de Boletas de IIBB</li>
+        <li>Generación de Boletas de Monotributo</li>
+        <li>Generación de formularios</li>
+        <li>Actualizaciones incluidas</li>
+      </ul>
+    </div>
+    <a href="/register.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-lg hover:bg-blue-700 mt-auto">
+      Empezá a facturar GRATIS
+    </a>
+  </div>
+
+  <!-- Plan Autogestión -->
+  <div class="bg-white border border-green-400 p-6 rounded-lg shadow-md w-80 flex flex-col justify-between text-center">
+    <div>
+      <h3 class="text-xl font-semibold text-green-600 mb-2">Plan autogestión</h3>
+      <p class="text-gray-700 mb-2">Gestioná tus facturas e impuestos vos mismo desde un sólo lugar</p>
+      <ul class="text-sm text-gray-600 list-disc list-inside mb-6 text-left">
+        <li>Generación de facturas ilimitada</li>
+        <li>Generación de Boletas de IIBB</li>
+        <li>Generación de Boletas de Monotributo</li>
+        <li>Generación de formularios</li>
+        <li>Actualizaciones incluidas</li>
+      </ul>
+      <p class="text-gray-700 mb-2">Accedé a todos los beneficios por sólo:</p>
+      <p class="text-3xl font-bold text-green-700 mb-4">$9.999</p>
+    </div>
+    <a href="/pago.html" class="bg-green-600 text-white px-4 py-2 rounded-lg text-lg hover:bg-green-700 mt-auto">
+      Adquirir ahora
+    </a>
+  </div>
+
+  <!-- Plan Completo -->
+  <div class="bg-white border border-purple-400 p-6 rounded-lg shadow-md w-80 flex flex-col justify-between text-center">
+    <div>
+      <h3 class="text-xl font-semibold text-purple-600 mb-2">Plan completo personalizado</h3>
+      <p class="text-gray-700 mb-2">Nos encargamos de todos tus trámites:</p>
+      <ul class="text-sm text-gray-600 list-disc list-inside mb-4 text-left">
+        <li>Generación de facturas</li>
+        <li>Pago de Monotributo</li>
+        <li>Pago de IIBB</li>
+        <li>Formularios de Rentas</li>
+      </ul>
+
+      <p class="text-gray-700 mb-2 text-left">Calculá tu costo total estimado:</p>
+
+      <label for="categoria" class="block text-left text-sm mb-1">Categoría de Monotributo:</label>
+      <select id="categoria" class="w-full border rounded px-2 py-1 mb-3">
+        <option value="A">A</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+        <option value="D">D</option>
+        <option value="E">E</option>
+        <option value="F">F</option>
+        <option value="G">G</option>
+        <option value="H">H</option>
+        <option value="I">I</option>
+        <option value="J">J</option>
+        <option value="K">K</option>
+      </select>
+      <button onclick="calcular()" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 w-full mb-2">Calcular</button>
+      <div id="resultado" class="mt-2 text-sm font-medium text-gray-800 whitespace-pre-line text-left"></div>
+    </div>
+        <a href="/pago.html" class="bg-purple-600 text-white px-4 py-2 rounded-lg text-lg hover:bg-green-700 mt-auto">
+      Adquirir ahora
+    </a>
+  </div>
+
+</div>
+
+  <!-- Script de cálculo -->
+ <script>
+  const categorias = {
+    A: { cuota: 32221, max_anual: 7813063 },
+    B: { cuota: 36679, max_anual: 11447046 },
+    C: { cuota: 42951, max_anual: 16050091 },
+    D: { cuota: 55047, max_anual: 19926340 },
+    E: { cuota: 77946, max_anual: 23439190 },
+    F: { cuota: 98096, max_anual: 29374695 },
+    G: { cuota: 149836, max_anual: 35128502 },
+    H: { cuota: 340061, max_anual: 53298417 },
+    I: { cuota: 626993, max_anual: 59657887 },
+    J: { cuota: 759420, max_anual: 68318880 },
+    K: { cuota: 1050323, max_anual: 82370281 }
+  };
+
+  function calcular() {
+    const categoriaSeleccionada = document.getElementById('categoria').value;
+    const datos = categorias[categoriaSeleccionada];
+    const servicio = 19999;
+
+    const maxMensual = Math.round(datos.max_anual / 12);
+    const iibbEstimado = Math.round(maxMensual * 0.05);
+    const total = datos.cuota + iibbEstimado + servicio;
+
+    document.getElementById('resultado').innerText =
+      `Categoría: ${categoriaSeleccionada}\n` +
+      `• Cuota monotributo: $${datos.cuota.toLocaleString('es-AR')}\n` +
+      `• Máxima facturación mensual: $${maxMensual.toLocaleString('es-AR')}\n` +
+      `• IIBB estimado (5%): $${iibbEstimado.toLocaleString('es-AR')}\n` +
+      `• Cargo de servicio: $${servicio.toLocaleString('es-AR')}\n\n` +
+      `• Total mensual estimado: $${total.toLocaleString('es-AR')}`;
+      `* El 5% es la alícuota máxima de IIBB. Para conocer la alícuota exacta de tu actividad, consultanos por WhatsApp.*`;
+  }
+</script>
+</main>
+<!-- Botón flotante de WhatsApp -->
+<a href="https://api.whatsapp.com/send?phone=5493764246978&text=Hola!%20Quiero%20más%20información%20sobre%20TributoApp" 
+   class="fixed bottom-6 right-6 z-50 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition duration-300"
+   target="_blank" rel="noopener noreferrer"
+   aria-label="Contacto por WhatsApp">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M20.52 3.48A11.78 11.78 0 0012.05 1C6.29 1 1.5 5.79 1.5 11.55c0 2.04.54 4.03 1.58 5.77L1 23l5.8-1.52A11.65 11.65 0 0012.05 22c5.75 0 10.55-4.79 10.55-10.55 0-2.81-1.1-5.44-3.08-7.42zM12.05 20a9.49 9.49 0 01-4.88-1.34l-.35-.2-3.45.91.92-3.36-.23-.35a9.54 9.54 0 0114.65-11.38 9.52 9.52 0 01-6.66 16.72z"/>
+    <path d="M17.25 14.58c-.29-.14-1.7-.84-1.96-.94s-.46-.14-.65.15-.75.94-.91 1.13-.34.21-.63.07a7.86 7.86 0 01-2.3-1.41 8.4 8.4 0 01-1.56-1.92c-.16-.28 0-.44.12-.59s.29-.34.44-.51a1.9 1.9 0 00.29-.48.54.54 0 000-.52c-.14-.14-.65-1.57-.9-2.15s-.48-.5-.65-.51h-.56a1.09 1.09 0 00-.79.37 3.33 3.33 0 00-1 2.45c0 1.43 1.04 2.8 1.19 3 .15.2 2.05 3.26 5.06 4.4a6.24 6.24 0 003.6.37c1.1-.16 1.7-.77 1.93-1.21a2.33 2.33 0 00.16-1.21c-.06-.1-.27-.16-.56-.3z"/>
+  </svg>
+</a>
+
+</body>
+
+
+<!-- Footer -->
+<footer class="bg-blue-700 text-white py-6 mt-10">
+  <div class="max-w-6xl mx-auto text-center px-4">
+    <p>&copy; 2025 TributoApp · Hecho en Argentina 🇦🇷</p>
+    <p class="mt-1 text-sm">Contáctanos por WhatsApp para atención personalizada</p>
+    <a href="/legales.html" class="text-gray-600 hover:text-blue-600 text-sm">Términos y Privacidad</a>
+  </div>
+</footer>
+</html>

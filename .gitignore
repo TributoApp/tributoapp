@@ -1,0 +1,12 @@
+# Archivos sensibles
+users.json
+.env
+
+# Logs y sistema
+node_modules/
+logs/
+*.log
+
+# Otros
+.DS_Store
+Logos y demas/

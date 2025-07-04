@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard - TributoApp</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="/js/dashboard.js"></script>
+</head>
+<body class="bg-gray-100 h-screen flex">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-white shadow-md h-full flex flex-col">
+    <div class="p-6 font-bold text-xl text-blue-600 border-b border-gray-200">
+      TributoApp
+    </div>
+
+<nav id="menuNav" class="flex-1 p-4 space-y-2">
+  <!-- Secciones visibles para todos los usuarios -->
+  <button class="w-full text-left px-4 py-2 hover:bg-blue-100 rounded" onclick="loadSection('perfil')">Perfil</button>
+  <button class="w-full text-left px-4 py-2 hover:bg-blue-100 rounded" onclick="loadSection('facturacion')">Facturación</button>
+  <button class="w-full text-left px-4 py-2 hover:bg-blue-100 rounded" onclick="loadSection('iibb')">IIBB Rentas</button>
+  <button class="w-full text-left px-4 py-2 hover:bg-blue-100 rounded" onclick="loadSection('tutorial')">Tutoriales</button>
+  <button class="w-full text-left px-4 py-2 hover:bg-blue-100 rounded" onclick="loadSection('contacto')">Contacto</button>
+  <button class="w-full text-left px-4 py-2 hover:bg-blue-100 rounded" onclick="loadSection('plan')">Plan</button>
+
+  <!-- Secciones visibles solo para el administrador -->
+  <div id="adminSection" style="display: none;">
+    <hr class="my-2 border-gray-300">
+    <p class="text-sm font-semibold text-gray-500 pl-2">Panel Administrador</p>
+    <button class="w-full text-left px-4 py-2 hover:bg-blue-100 rounded" onclick="loadSection('usuarios')">Usuarios</button>
+    <button class="w-full text-left px-4 py-2 hover:bg-blue-100 rounded" onclick="loadSection('facturas_admin')">Facturas (Admin)</button>
+  </div>
+
+</nav>
+
+ 
+
+    <div class="p-4 border-t border-gray-200">
+      <button class="w-full text-left text-red-600 hover:underline" onclick="logout()">Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <!-- Contenido principal -->
+  <main class="flex-1 p-8 overflow-y-auto">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6" id="section-title">Bienvenido</h1>
+    <div id="section-content">
+      <p>Seleccioná una opción del menú para comenzar.</p>
+    </div>
+
+ </main>
+</body>
+</html>
+
+
+
+
+

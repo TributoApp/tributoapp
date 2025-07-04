@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Emitir Factura - TributoApp</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+  <div class="bg-white p-6 rounded shadow-md max-w-2xl mx-auto">
+    <h2 class="text-2xl font-bold text-blue-600 mb-4">Generar Factura</h2>
+    <form id="facturaForm" class="space-y-4">
+      <div>
+        <label class="block font-medium mb-1">CUIT del usuario</label>
+        <input type="text" name="cuit_usuario" required class="w-full border border-gray-300 p-2 rounded" placeholder="Ej: 20304050607">
+      </div>
+      <div>
+        <label class="block font-medium mb-1">CUIT del cliente</label>
+        <input type="text" name="cliente_cuit" required class="w-full border border-gray-300 p-2 rounded" placeholder="Ej: 20123456789">
+      </div>
+      <div>
+        <label class="block font-medium mb-1">Tipo de Comprobante</label>
+        <select name="tipo_cbte" required class="w-full border border-gray-300 p-2 rounded">
+          <option value="11">Factura C</option>
+          <option value="1">Factura A</option>
+          <option value="6">Factura B</option>
+        </select>
+      </div>
+      <div>
+        <label class="block font-medium mb-1">Importe Total</label>
+        <input type="number" name="importe" step="0.01" required class="w-full border border-gray-300 p-2 rounded" placeholder="Ej: 1500.00">
+      </div>
+      <div>
+        <label class="block font-medium mb-1">Fecha</label>
+        <input type="date" name="fecha" required class="w-full border border-gray-300 p-2 rounded">
+      </div>
+      <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
+        Generar Factura
+      </button>
+    </form>
+
+    <div id="facturaResultado" class="mt-6 text-sm text-gray-800"></div>
+  </div>
+  <script>
+    document.getElementById('facturaForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(e.target);
+      const data = {
+        cuit_usuario: formData.get('cuit_usuario'),
+        cliente_cuit: formData.get('cliente_cuit'),
+        tipo_cbte: parseInt(formData.get('tipo_cbte')),
+        importe: parseFloat(formData.get('importe')),
+        fecha: formData.get('fecha')
+      };
+
+      try {
+        const response = await fetch('http://localhost:3000/facturas', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        document.getElementById('facturaResultado').innerHTML = `
+          <pre class="bg-gray-100 p-4 rounded border border-gray-300">${JSON.stringify(result, null, 2)}</pre>
+        `;
+      } catch (error) {
+        document.getElementById('facturaResultado').textContent = 'Error al generar factura.';
+      }
+    });
+  </script>
+
+   <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const cuitAdmin = '20387758578';
+      const cuitUsuario = localStorage.getItem('cuit_usuario');
+
+      if (cuitUsuario === cuitAdmin) {
+        document.getElementById('adminPanel').classList.remove('hidden');
+        cargarFacturasParaAdmin();
+      }
+    });
+
+    async function cargarFacturasParaAdmin() {
+      try {
+        const res = await fetch('/api/facturas/admin/todas', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          }
+        });
+
+        const facturas = await res.json();
+        const adminList = document.getElementById('adminFacturasList');
+        adminList.innerHTML = '';
+
+        facturas.forEach(f => {
+          const item = document.createElement('div');
+          item.className = 'border p-3 rounded shadow-sm bg-gray-50';
+          item.innerHTML = `
+            <p><strong>CUIT Usuario:</strong> ${f.cuit_usuario}</p>
+            <p><strong>Cliente CUIT:</strong> ${f.cliente_cuit}</p>
+            <p><strong>Importe:</strong> $${parseFloat(f.importe).toFixed(2)}</p>
+            <p><strong>Estado:</strong> ${f.estado}</p>
+            <button class="mt-2 bg-green-600 text-white px-3 py-1 rounded" onclick="marcarComoHecha(${f.id})">Marcar como hecha</button>
+          `;
+          adminList.appendChild(item);
+        });
+
+      } catch (err) {
+        console.error("❌ Error al cargar facturas para admin:", err);
+      }
+    }
+
+    async function marcarComoHecha(id) {
+      try {
+        const res = await fetch(`/api/facturas/${id}/estado`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          },
+          body: JSON.stringify({ estado: 'hecha' })
+        });
+
+        if (res.ok) {
+          alert('✅ Factura marcada como hecha');
+          cargarFacturasParaAdmin();
+        } else {
+          alert('❌ No se pudo actualizar el estado');
+        }
+      } catch (error) {
+        console.error('❌ Error al actualizar estado:', error);
+      }
+    }
+  </script>
+</body>
+</html>
+

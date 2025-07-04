@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Pago Exitoso</title>
+  <script>
+    window.addEventListener('DOMContentLoaded', async () => {
+      const token = localStorage.getItem('token');
+      const cuit = localStorage.getItem('cuit_usuario');
+
+      if (!token || !cuit) {
+        return alert('⚠️ No se pudo verificar el usuario');
+      }
+
+      try {
+        const res = await fetch('/api/usuarios/actualizar-fin-prueba', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ cuit })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          alert('✅ ¡Pago confirmado! Acceso extendido.');
+          // Guardar nueva fecha en localStorage
+          localStorage.setItem('fin_prueba', data.nuevaFecha);
+          window.location.href = '/dashboard.html';
+        } else {
+          alert(`❌ Error al actualizar acceso: ${data.message}`);
+        }
+      } catch (err) {
+        console.error(err);
+        alert('❌ Error de red');
+      }
+    });
+  </script>
+</head>
+<body>
+  <h1>Procesando tu pago...</h1>
+</body>
+</html>

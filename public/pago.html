@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Pago del servicio</title>
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 40px; }
+    #wallet_container { margin-top: 30px; }
+  </style>
+</head>
+<body>
+  <h1>Adquirir Plan Completo</h1>
+  <p>Precio: <strong>$9.999</strong></p>
+  <div id="wallet_container"></div>
+
+  <script>
+    const mp = new MercadoPago('PUBLIC_KEY_AQUI', {
+      locale: 'es-AR'
+    });
+
+    fetch('http://localhost:3000/crear-preferencia', {
+      method: 'POST'
+    })
+    .then(res => res.json())
+    .then(data => {
+      mp.checkout({
+        preference: {
+          id: data.id
+        },
+        render: {
+          container: '#wallet_container',
+          label: 'Pagar ahora'
+        }
+      });
+    })
+    .catch(error => {
+      console.error('Error al obtener la preferencia:', error);
+    });
+  </script>
+</body>
+</html>
