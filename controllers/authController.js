@@ -1,72 +1,106 @@
-const fs = require('fs');
+const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const USERS_FILE = 'users.json';
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }, // ajustar según entorno
+});
 
 exports.register = async (req, res) => {
   const { nombre, email, cuit, password } = req.body;
-  const hashedPassword = await bcrypt.hash(password, 10);
 
-  let users = fs.existsSync(USERS_FILE) ? JSON.parse(fs.readFileSync(USERS_FILE)) : [];
-
-  if (users.find(u => u.email === email)) {
-    return res.status(400).json({ message: 'Usuario ya registrado' });
+  if (!nombre || !email || !cuit || !password) {
+    return res.status(400).json({ message: 'Faltan datos obligatorios' });
   }
 
-  const now = new Date();
-  const registro = now.toISOString();
-  const fin_prueba = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(); // +30 días
+  if (!/^\d{11}$/.test(cuit)) {
+    return res.status(400).json({ message: 'CUIT inválido' });
+  }
 
-  users.push({
-    nombre,
-    email,
-    cuit,
-    password: hashedPassword,
-    registro,
-    fin_prueba,
-    iibb: 3.5
-  });
+  try {
+    // Verificar si existe usuario con email o cuit
+    const exists = await pool.query(
+      'SELECT 1 FROM usuarios WHERE email = $1 OR cuit = $2',
+      [email, cuit]
+    );
+    if (exists.rows.length > 0) {
+      return res.status(409).json({ message: 'Email o CUIT ya registrado' });
+    }
 
-  fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
-  res.json({ message: 'Usuario registrado correctamente' });
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Calcular fin_prueba: 30 días desde hoy
+    const finPrueba = new Date();
+    finPrueba.setDate(finPrueba.getDate() + 30);
+
+    const now = new Date();
+
+    // Insertar usuario
+    await pool.query(
+      `INSERT INTO usuarios (nombre, email, cuit, password, registro, fin_prueba, iibb)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [nombre, email, cuit, hashedPassword, now, finPrueba, 3.5]
+    );
+
+    res.json({ message: 'Usuario registrado correctamente' });
+  } catch (error) {
+    console.error('Error en register:', error);
+    res.status(500).json({ message: 'Error del servidor' });
+  }
 };
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;
-  const users = fs.existsSync(USERS_FILE) ? JSON.parse(fs.readFileSync(USERS_FILE)) : [];
-  const user = users.find(u => u.email === email);
 
-  if (!user || !(await bcrypt.compare(password, user.password))) {
-    return res.status(401).json({ message: 'Credenciales inválidas' });
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Faltan datos obligatorios' });
   }
 
-  const ahora = new Date();
-  const finPrueba = new Date(user.fin_prueba);
-  if (ahora > finPrueba) {
-    return res.status(403).json({ message: 'Período de prueba finalizado. Debe contratar el servicio.' });
-  }
+  try {
+    const result = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
+    const user = result.rows[0];
 
-  const token = jwt.sign(
-    {
-      email: user.email,
-      cuit: user.cuit,
-      registro: user.registro,
-      fin_prueba: user.fin_prueba
-    },
-    process.env.JWT_SECRET,
-    { expiresIn: '2h' }
-  );
-
-  res.json({
-    message: 'Inicio de sesión exitoso',
-    token,
-    usuario: {
-      email: user.email,
-      cuit: user.cuit,
-      registro: user.registro,
-      fin_prueba: user.fin_prueba,
-      iibb: user.iibb ?? 3.5
+    if (!user) {
+      return res.status(401).json({ message: 'Credenciales inválidas' });
     }
-  });
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return res.status(401).json({ message: 'Credenciales inválidas' });
+    }
+
+    const ahora = new Date();
+    const finPrueba = new Date(user.fin_prueba);
+
+    if (ahora > finPrueba) {
+      return res.status(403).json({ message: 'Período de prueba finalizado. Debe contratar el servicio.' });
+    }
+
+    const token = jwt.sign(
+      {
+        email: user.email,
+        cuit: user.cuit,
+        registro: user.registro,
+        fin_prueba: user.fin_prueba
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '2h' }
+    );
+
+    res.json({
+      message: 'Inicio de sesión exitoso',
+      token,
+      usuario: {
+        email: user.email,
+        cuit: user.cuit,
+        registro: user.registro,
+        fin_prueba: user.fin_prueba,
+        iibb: user.iibb ?? 3.5
+      }
+    });
+  } catch (error) {
+    console.error('Error en login:', error);
+    res.status(500).json({ message: 'Error del servidor' });
+  }
 };
