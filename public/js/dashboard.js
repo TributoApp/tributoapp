@@ -194,6 +194,11 @@ case "perfil":
 case "facturacion":
   title.textContent = "Facturación";
   content.innerHTML = `
+      <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded mb-4">
+      <p class="font-semibold">Atención:</p>
+      <p>Para poder emitir facturas electrónicas desde TributoApp necesitás <strong>autorizarnos en AFIP</strong>.</p>
+      <p>En la sección <strong>“Autorizar en AFIP”</strong> (arriba), vas a encontrar el tutorial paso a paso para hacerlo.</p>
+    </div>
     <div class="bg-white p-6 rounded shadow-md max-w-2xl mx-auto">
       <h2 class="text-2xl font-bold text-blue-600 mb-4">Generar Factura</h2>
       <form id="facturaForm" class="space-y-4">
