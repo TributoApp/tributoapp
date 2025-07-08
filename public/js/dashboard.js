@@ -591,7 +591,6 @@ case "plan":
 
   break;
 
-
 case "usuarios":
   title.textContent = "Usuarios Registrados";
   content.innerHTML = `
