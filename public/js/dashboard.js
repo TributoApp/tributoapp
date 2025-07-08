@@ -558,7 +558,7 @@ case "contacto":
   `;
   break;
 
-case "plan":
+case "plan": {
   title.textContent = "Plan";
 
   const cuit = localStorage.getItem("cuit_usuario");
@@ -573,38 +573,19 @@ case "plan":
       <p class="text-lg mb-6">
         ${
           estaEnPrueba
-            ? `Estás en período de prueba hasta el <strong>${finPrueba.toLocaleDateString()}</strong>.`
-            : `Tu período de prueba ha finalizado.`
+            ? `Tu Plan finaliza el <strong>${finPrueba.toLocaleDateString()}</strong>.`
+            : `Tu Plan ha finalizado.`
         }
       </p>
-      <button id="btnPagarPremium" class="bg-green-600 text-white px-6 py-2 rounded-lg text-lg hover:bg-green-700">
-        Adquirir Plan Premium por $9.999
-      </button>
+      <a href="https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=44447526-667f53f6-35bf-422c-a452-1ff58029887c"
+        target="_blank" rel="noopener noreferrer"
+        class="bg-green-600 text-white px-6 py-2 rounded-lg text-lg hover:bg-green-700">
+        Adquirir Plan por $9.999
+      </a>
     </div>
   `;
-
-  document.getElementById("btnPagarPremium").addEventListener("click", async () => {
-    try {
-      const res = await fetch("/api/crear-link-pago", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cuit })
-      });
-
-      const data = await res.json();
-
-      if (res.ok && data.init_point) {
-        window.location.href = data.init_point;
-      } else {
-        alert("❌ Error al generar el link de pago.");
-      }
-    } catch (err) {
-      console.error("❌ Error al conectar con el servidor:", err);
-      alert("❌ Error al conectar con el servidor.");
-    }
-  });
-
   break;
+}
 
 case "usuarios":
   title.textContent = "Usuarios Registrados";
@@ -637,6 +618,13 @@ case "usuarios":
             <input type="number" min="0" max="100" step="0.1" value="${(u.iibb || 3.5)}" 
                    data-cuit="${u.cuit}" class="iibb-input border rounded p-1 ml-2 w-24">
           </label>
+          <label class="block mt-2">Fin prueba (YYYY-MM-DD):
+            <input type="date" value="${u.fin_prueba?.slice(0,10)}" 
+              data-cuit="${u.cuit}" class="finprueba-input border rounded p-1 ml-2">
+          </label>
+          <button data-cuit="${u.cuit}" class="extender-btn bg-blue-500 text-white px-2 py-1 rounded mt-2 hover:bg-blue-600">
+             Extender 30 días
+          </button>
         `;
         contenedor.appendChild(card);
       });
@@ -668,6 +656,34 @@ case "usuarios":
           }
         });
       });
+
+      document.querySelectorAll('.extender-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const cuit = btn.dataset.cuit;
+
+    try {
+      const res = await fetch('/api/usuarios/extender-prueba', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ cuit })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert(`✅ Período de prueba extendido hasta el ${data.nuevaFecha}`);
+      } else {
+        alert(`❌ Error: ${data.message}`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('❌ Error al extender prueba');
+    }
+  });
+});
+
     })
     .catch(err => {
       console.error(err);

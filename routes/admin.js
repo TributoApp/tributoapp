@@ -57,6 +57,38 @@ router.post('/usuarios/editar-iibb', verifyToken, async (req, res) => {
   }
 });
 
+router.post('/usuarios/extender-prueba', verifyToken, async (req, res) => {
+  const { cuit } = req.body;
+
+  if (req.user.cuit !== cuitAdmin) {
+    return res.status(403).json({ message: 'Acceso denegado' });
+  }
+
+  if (!cuit) {
+    return res.status(400).json({ message: 'CUIT inválido' });
+  }
+
+  try {
+    // Obtener la fecha actual fin_prueba
+    const result = await pool.query('SELECT fin_prueba FROM usuarios WHERE cuit = $1', [cuit]);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    const actual = new Date(result.rows[0].fin_prueba);
+    const nueva = new Date(actual.getTime() + 30 * 24 * 60 * 60 * 1000); // +30 días
+
+    // Guardar nueva fecha
+    await pool.query('UPDATE usuarios SET fin_prueba = $1 WHERE cuit = $2', [nueva.toISOString(), cuit]);
+
+    res.json({ message: 'Fin de prueba extendido', nuevaFecha: nueva.toISOString().slice(0, 10) });
+  } catch (err) {
+    console.error('❌ Error al extender fin_prueba:', err);
+    res.status(500).json({ message: 'Error al extender fecha' });
+  }
+});
+
+
 module.exports = router;
 
 
