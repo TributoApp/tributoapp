@@ -449,67 +449,77 @@ case "iibb":
 case "tutorial":
   title.textContent = "Tutoriales";
   content.innerHTML = `
-      <div class="bg-white p-6 rounded shadow-md mb-6">
+    <div class="bg-white p-6 rounded shadow-md mb-6">
       <h2 class="text-xl font-semibold mb-4 text-blue-600">Aprendé paso a paso</h2>
       <p class="mb-2">Acá vas a encontrar tutoriales para todo lo que necesites.</p>
       <ul class="list-disc list-inside text-gray-700 mb-6">
-        <li>Cómo generar y cargar los certificados para facturar.</li>
+        <li>Cómo autorizar nuestro CUIT en AFIP.</li>
         <li>Cómo interpretar los paneles de Facturas, Gastos e IIBB.</li>
         <li>Cómo presentar y pagar los impuestos.</li>
       </ul>
     </div>
 
     <div class="bg-white p-6 rounded shadow-md">
-    <h2 class="text-xl font-semibold mb-4 text-blue-600">Aprendé paso a paso</h2>
-    <p class="mb-2">Seleccioná un tutorial:</p>
-    <div class="flex flex-wrap gap-4 mb-6">
-      <button class="tutorial-btn bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-blue-100" onclick="mostrarTutorial('certificados', this)">Certificados AFIP</button>
-      <button class="tutorial-btn bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-blue-100" onclick="mostrarTutorial('facturacion', this)">Facturación</button>
-      <button class="tutorial-btn bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-blue-100" onclick="mostrarTutorial('impuestos', this)">Impuestos</button>
+      <h2 class="text-xl font-semibold mb-4 text-blue-600">Seleccioná un tutorial</h2>
+      <div class="flex flex-wrap gap-4 mb-6">
+        <button class="tutorial-btn bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-blue-100" onclick="mostrarTutorial('afip', this)">Autorizar en AFIP</button>
+        <button class="tutorial-btn bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-blue-100" onclick="mostrarTutorial('facturacion', this)">Facturación</button>
+        <button class="tutorial-btn bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-blue-100" onclick="mostrarTutorial('impuestos', this)">Impuestos</button>
+      </div>
+      <div id="tutorial-content" class="space-y-2 text-gray-800"></div>
     </div>
-    <div id="tutorial-content" class="space-y-2 text-gray-800"></div>
-  </div>
   `;
- 
+
   window.mostrarTutorial = function(nombre, boton) {
-  // Marcar botón activo
-  document.querySelectorAll('.tutorial-btn').forEach(btn => {
-    btn.classList.remove('bg-green-100', 'text-green-800');
-    btn.classList.add('bg-gray-200', 'text-gray-800');
-  });
+    // Marcar botón activo
+    document.querySelectorAll('.tutorial-btn').forEach(btn => {
+      btn.classList.remove('bg-green-100', 'text-green-800');
+      btn.classList.add('bg-gray-200', 'text-gray-800');
+    });
 
-  boton.classList.remove('bg-gray-200', 'text-gray-800');
-  boton.classList.add('bg-green-100', 'text-green-800');
-  const cont = document.getElementById('tutorial-content');
+    boton.classList.remove('bg-gray-200', 'text-gray-800');
+    boton.classList.add('bg-green-100', 'text-green-800');
+    const cont = document.getElementById('tutorial-content');
 
-  switch (nombre) {
-    case 'certificados':
-      cont.innerHTML = `
-    <div class="bg-white p-6 rounded shadow-md">
-     <h2 class="text-xl font-semibold mb-4 text-blue-600">Tutorial de Autorización AFIP</h2>
-     <p class="mb-4">Próximamente.</p>
-    
-   </div>
-      `;
-      break;
+    switch (nombre) {
+      case 'afip':
+        cont.innerHTML = `
+          <div class="bg-white p-6 rounded shadow-md">
+            <h2 class="text-xl font-bold text-blue-700 mb-4">Autorizar a TributoApp en AFIP</h2>
+            <p class="mb-4">Para que podamos facturar electrónicamente a tu nombre sin pedirte tu clave, necesitás autorizarnos desde tu cuenta de AFIP. Es un proceso rápido y 100% seguro.</p>
+            <ol class="list-decimal list-inside space-y-2 text-sm text-gray-800">
+              <li>Ingresá a <a href="https://www.afip.gob.ar" target="_blank" class="text-blue-600 underline">afip.gob.ar</a> con tu CUIT y clave fiscal.</li>
+              <li>Buscá el servicio <strong>Administrador de Relaciones</strong> y hacé clic.</li>
+              <li>Elegí la opción <strong>“Nueva relación”</strong>.</li>
+              <li>Seleccioná el servicio <strong>“Comprobantes en línea”</strong>.</li>
+              <li>Cuando te pida el CUIT del apoderado, ingresá: <strong class="text-blue-700">20387758578</strong>.</li>
+              <li>Confirmá la autorización.</li>
+            </ol>
+            <p class="mt-4 text-sm text-gray-700">Una vez autorizado, nosotros nos encargamos de la facturación. Podés revocar este permiso cuando quieras desde el mismo portal.</p>
+          </div>
+        `;
+        break;
 
-    case 'facturacion':
-      cont.innerHTML = `
-        <h3 class="text-lg font-semibold mb-2">Generar factura electrónica</h3>
-        <p class="mb-2">1. Andá a la sección Facturación.</p>
-        <p class="mb-2">2. Completá los datos: CUIT del cliente, tipo de comprobante, importe y fecha.</p>
-        <p class="mb-2">3. Presioná "Generar factura" y esperá la confirmación de AFIP.</p>
-      `;
-      break;
+      case 'facturacion':
+        cont.innerHTML = `
+          <h3 class="text-lg font-semibold mb-2">Generar factura electrónica</h3>
+          <p class="mb-2">1. Andá a la sección Facturación.</p>
+          <p class="mb-2">2. Completá los datos: CUIT del cliente, tipo de comprobante, importe y fecha.</p>
+          <p class="mb-2">3. Presioná "Generar factura" y esperá la confirmación de AFIP.</p>
+        `;
+        break;
 
-    case 'impuestos':
-      cont.innerHTML = `
-        <h3 class="text-lg font-semibold mb-2">Presentar y pagar impuestos</h3>
-        <p class="mb-2">1. Andá a la sección IIBB.</p>
-      `;
-      break;
- }}
- break;
+      case 'impuestos':
+        cont.innerHTML = `
+          <h3 class="text-lg font-semibold mb-2">Presentar y pagar impuestos</h3>
+          <p class="mb-2">1. Andá a la sección IIBB.</p>
+          <p class="mb-2">2. Verificá el total mensual y las fechas límite.</p>
+          <p class="mb-2">3. Podés usar VEP o generar el formulario desde Mis Facilidades.</p>
+        `;
+        break;
+    }
+  };
+break;
 
 case "contacto":
   title.textContent = "Contacto";
