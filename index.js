@@ -16,7 +16,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Rutas principales
 const authRoutes = require('./routes/auth');
 const perfilRoutes = require('./routes/perfil');
-// const facturaAfipRoutes = require('./routes/facturaafip'); // Este es el que vas a usar
+const afipRoutes = require('./routes/afip');
 const facturaDbRoutes = require('./routes/facturaDB'); // este es de la base de datos (database)
 const facturaMailRoutes = require('./routes/facturasmail'); // se encarga de mandar el requerimiento de facturas por mail 
 const adminRoutes = require('./routes/admin');
@@ -29,7 +29,7 @@ app.get('/', (req, res) => {
 // Usar rutas bien definidas
 app.use('/api', authRoutes);
 app.use('/api/perfil', perfilRoutes);
-// app.use('/api/facturaafip', facturaAfipRoutes); // Facturación real AFIP
+app.use('/api/afip', afipRoutes); //facturas reales en AFIP
 app.use('/api', facturaDbRoutes); //facturas de data base
 app.use('/api/facturasmail', facturaMailRoutes); //pedido de facturas al mail
 app.use('/api', adminRoutes);

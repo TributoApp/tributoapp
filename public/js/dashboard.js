@@ -202,132 +202,434 @@ case "facturacion":
     <div class="bg-white p-6 rounded shadow-md max-w-2xl mx-auto">
       <h2 class="text-2xl font-bold text-blue-600 mb-4">Generar Factura</h2>
       <form id="facturaForm" class="space-y-4">
-        <div>
-          <label class="block font-medium mb-1">CUIT del usuario</label>
-          <input type="text" name="cuit_usuario" id="cuit_usuario" required class="w-full border border-gray-300 p-2 rounded" readonly>
+
+          <div>
+            <label class="block font-medium mb-1">CUIT del usuario</label>
+            <input type="text" name="cuit_usuario" id="cuit_usuario" required class="w-full border border-gray-300 p-2 rounded" readonly>
+          </div>
+          <div>
+        
+          <div class="mb-4">
+          <label for="condicion_iva" class="block mb-1 font-medium">Condición frente al IVA del cliente</label>
+          <select name="condicion_iva" id="condicion_iva" required class="w-full border border-gray-300 p-2 rounded">
+            <option value="" disabled selected>Seleccionar condición</option>
+            <option value="1">IVA Responsable Inscripto</option>
+            <option value="5">Consumidor Final</option>
+            <option value="6">Responsable Monotributo</option>
+          </select>
+
+          <div class="mb-4 flex gap-4 items-end">
+            <!-- Tipo de Documento -->
+            <div class="flex-1" id="tipoDocumentoContainer" style="display:none;">
+              <label for="tipo_documento" class="block mb-1 font-medium">Tipo de Documento</label>
+              <select name="tipo_documento" id="tipo_documento" class="w-full border border-gray-300 p-2 rounded" required>
+                <!-- Se completa dinámicamente -->
+              </select>
+            </div>
+
+            <!-- Número de Documento -->
+            <div class="flex-1">
+              <label for="cliente_cuit" class="block mb-1 font-medium">Número de Documento</label>
+              <input type="text" name="cliente_cuit" id="cliente_cuit" class="w-full border border-gray-300 p-2 rounded" required>
+            </div>
+          </div>
+
+          <!-- Mensaje de error -->
+          <div class="mt-2 text-sm text-red-600" id="padronError" style="display:none;">
+            ❌ Error de Arca. Ingrese Razón Social y Dirección manualmente.
+          </div>
+
+          <div class="mb-4">
+            <label class="block font-medium">Nombre o Razón Social</label>
+            <input type="text" id="razonSocial" name="razonSocial" class="w-full border border-gray-300 p-2 rounded" readonly />
+          </div>
+
+          <div class="mb-4">
+            <label class="block font-medium">Dirección</label>
+            <input type="text" id="direccion" name="direccion" class="w-full border border-gray-300 p-2 rounded" readonly />
+          </div>
+
+          <div class="mb-4">
+          <label for="concepto" class="block font-medium mb-1">Concepto</label>
+          <select name="concepto" id="concepto" class="w-full border border-gray-300 p-2 rounded" required>
+            <option value="1">Productos</option>
+            <option value="2">Servicios</option>
+            <option value="3">Productos y Servicios</option>
+          </select>
         </div>
-        <div>
-          <label class="block font-medium mb-1">CUIT del cliente</label>
-          <input type="text" name="cliente_cuit" required class="w-full border border-gray-300 p-2 rounded" placeholder="Ej: 20123456789">
+
+        <div id="fechasServicio" style="display: none;">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+            <div>
+              <label class="block font-medium mb-1">Fecha Servicio Desde</label>
+              <input type="date" id="fecha_serv_desde" name="fecha_serv_desde" class="w-full border border-gray-300 p-2 rounded">
+            </div>
+            <div>
+              <label class="block font-medium mb-1">Fecha Servicio Hasta</label>
+              <input type="date" id="fecha_serv_hasta" name="fecha_serv_hasta" class="w-full border border-gray-300 p-2 rounded">
+            </div>
+            <div>
+              <label class="block font-medium mb-1">Fecha Vencimiento Pago</label>
+              <input type="date" id="fecha_venc_pago" name="fecha_venc_pago" class="w-full border border-gray-300 p-2 rounded">
+            </div>
+          </div>
         </div>
-        <div>
+
+
           <label class="block font-medium mb-1">Tipo de Comprobante</label>
           <select name="tipo_cbte" required class="w-full border border-gray-300 p-2 rounded">
             <option value="11">Factura C (como Monotributista sólo podes hacer facturas C)</option>
           </select>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          </div>
+        
+         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label class="block font-medium mb-1">Descripción</label>
             <input type="text" name="descripcion" required class="w-full border border-gray-300 p-2 rounded" placeholder="Ej: Consultoría">
           </div>
+         
           <div>
             <label class="block font-medium mb-1">Cantidad</label>
             <input type="number" name="cantidad" required min="1" step="1" class="w-full border border-gray-300 p-2 rounded" value="1">
           </div>
+        
           <div>
             <label class="block font-medium mb-1">Precio unitario</label>
             <input type="number" name="precio_unitario" required min="0" step="0.01" class="w-full border border-gray-300 p-2 rounded" placeholder="Ej: 1500">
           </div>
-        </div>
-        <div>
-          <label class="block font-medium mb-1">Fecha</label>
-          <input type="date" name="fecha" id="fecha" required class="w-full border border-gray-300 p-2 rounded" readonly>
-        </div>
-        <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
-          Generar Factura
-        </button>
-      </form>
-      <div id="facturaResultado" class="mt-6 text-sm text-gray-800"></div>
-    </div>
 
-    <div id="adminPanel" class="bg-white mt-10 p-6 rounded shadow" style="display:none;">
-      <h2 class="text-xl font-bold mb-4 text-blue-700">Panel de Administración</h2>
-      <div id="adminFacturasList" class="space-y-4"></div>
-    </div>
+          <div class="mt-4">
+            <label class="block font-medium mb-1">Precio Total</label>
+            <input type="text" id="precio_total" class="w-full border border-gray-300 p-2 rounded bg-gray-100" readonly>
+          </div>
+
+          </div>
+       
+          <div>
+            <label class="block font-medium mb-1">Fecha</label>
+            <input type="date" name="fecha" id="fecha" required class="w-full border border-gray-300 p-2 rounded" readonly>
+          </div>
+       
+        <button id="emitirBtn" type="submit" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 flex items-center justify-center gap-2">
+          <span id="btnText">Generar Factura</span>
+          <svg id="btnSpinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+          </svg>
+        </button>
+
+        <div id="facturaResultado" class="mt-6 text-sm text-gray-800"></div>
+        </div>
+
+        <div id="adminPanel" class="bg-white mt-10 p-6 rounded shadow" style="display:none;">
+          <h2 class="text-xl font-bold mb-4 text-blue-700">Panel de Administración</h2>
+          <div id="adminFacturasList" class="space-y-4"></div>
+        </div>
   `;
 
-  setTimeout(() => {
-    const form = document.querySelector('#facturaForm');
-    const resultDiv = document.querySelector('#facturaResultado');
+setTimeout(() => {
+  const form = document.querySelector('#facturaForm');
+  const resultDiv = document.querySelector('#facturaResultado');
 
-    if (form) {
-      const cuitInput = document.getElementById('cuit_usuario');
-      if (cuitInput) {
-        const cuitUsuario = localStorage.getItem('cuit_usuario') || '';
-        cuitInput.value = cuitUsuario;
+  if (form) {
+    const cuitInput = document.getElementById('cuit_usuario');
+    if (cuitInput) {
+      const cuitUsuario = localStorage.getItem('cuit_usuario') || '';
+      cuitInput.value = cuitUsuario;
+    }
+
+    const fechaInput = document.getElementById('fecha');
+    if (fechaInput) {
+      const hoy = new Date().toISOString().split('T')[0];
+      fechaInput.value = hoy;
+    }
+
+    const condicionIVASelect = document.getElementById('condicion_iva');
+    const tipoDocumentoContainer = document.getElementById('tipoDocumentoContainer');
+    const tipoDocumentoSelect = document.getElementById('tipo_documento');
+    const clienteCuitInput = document.getElementById('cliente_cuit');
+    const razonSocialInput = document.getElementById('razonSocial');
+    const direccionInput = document.getElementById('direccion');
+    const padronErrorDiv = document.getElementById('padronError');
+    const conceptoSelect = document.getElementById('concepto');
+    const fechasServicioDiv = document.getElementById('fechasServicio');
+    const cantidadInput = document.querySelector('input[name="cantidad"]');
+    const precioUnitarioInput = document.querySelector('input[name="precio_unitario"]');
+    const precioTotalInput = document.getElementById('precio_total');
+    const emitirBtn = document.getElementById('emitirBtn');
+    const btnText = document.getElementById('btnText');
+    const btnSpinner = document.getElementById('btnSpinner');
+
+    // Mostrar opciones del tipo de documento según IVA
+      condicionIVASelect.addEventListener('change', () => {
+      const valor = condicionIVASelect.value;
+      tipoDocumentoSelect.innerHTML = ''; // Limpia opciones
+
+      if (valor === '2') {
+        // Responsable Monotributo
+        tipoDocumentoContainer.style.display = 'block';
+        tipoDocumentoSelect.innerHTML = `
+          <option value="96">DNI</option>
+          <option value="80">CUIT</option>
+          <option value="86">CUIL</option>
+          <option value="99">Consumidor Final</option>
+        `;
+      } else if (valor === '1' || valor === '6') {
+        // Responsable Inscripto o Exento
+        tipoDocumentoContainer.style.display = 'block';
+        tipoDocumentoSelect.innerHTML = `<option value="80">CUIT</option>`;
+      } else {
+        // Consumidor Final u otros
+        tipoDocumentoContainer.style.display = 'block';
+        tipoDocumentoSelect.innerHTML = `<option value="99">Consumidor Final</option>`;
       }
+    });
 
-      const fechaInput = document.getElementById('fecha');
-      if (fechaInput) {
-        const hoy = new Date().toISOString().split('T')[0];
-        fechaInput.value = hoy;
-      }
 
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+      // Consulta automática al padrón AFIP
+      clienteCuitInput.addEventListener('blur', async () => {
+        const tipoDoc = tipoDocumentoSelect.value;
+        const nroDoc = clienteCuitInput.value.trim();
 
-        const formData = new FormData(form);
-        const cuit_usuario = formData.get('cuit_usuario');
-        const cliente_cuit = formData.get('cliente_cuit');
-        const tipo_cbte = parseInt(formData.get('tipo_cbte'));
-        const descripcion = formData.get('descripcion');
-        const cantidad = parseFloat(formData.get('cantidad'));
-        const precio_unitario = parseFloat(formData.get('precio_unitario'));
-        const importe = cantidad * precio_unitario;
-        const fecha = formData.get('fecha');
+        if (tipoDoc !== '80') return; // Solo CUIT
+        if (!/^\d{11}$/.test(nroDoc)) return;
 
-        if (!cuit_usuario || !cliente_cuit || isNaN(tipo_cbte) || isNaN(importe) || !fecha || !descripcion || isNaN(cantidad) || isNaN(precio_unitario)) {
-          resultDiv.innerHTML = `❌ Por favor completá todos los campos correctamente.`;
-          return;
-        }
+        razonSocialInput.value = '';
+        direccionInput.value = '';
+        razonSocialInput.readOnly = true;
+        direccionInput.readOnly = true;
+        padronErrorDiv.style.display = 'none'; // Oculta mensaje antes de consultar
 
         try {
-          const dbResponse = await fetch('/api/facturas', {
-            method: 'POST',
+          const res = await fetch(`/api/afip/padron/${nroDoc}`, {
             headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-            },
-            body: JSON.stringify({ cuit_usuario, cliente_cuit, tipo_cbte, descripcion, cantidad, precio_unitario, importe, fecha })
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
           });
 
-          const dbData = await dbResponse.json();
+          const data = await res.json();
 
-          if (!dbResponse.ok) {
-            resultDiv.innerHTML = `❌ Error al guardar en base de datos: ${dbData.message || 'Error desconocido'}`;
-            return;
+          if (res.ok && data.razonSocial) {
+            razonSocialInput.value = data.razonSocial || '';
+            direccionInput.value = data.domicilioFiscal?.direccion || '';
+            razonSocialInput.readOnly = true;
+            direccionInput.readOnly = true;
+          } else {
+            razonSocialInput.readOnly = false;
+            direccionInput.readOnly = false;
+            padronErrorDiv.style.display = 'block';
+
+            // Ocultar el mensaje después de 5 segundos
+            setTimeout(() => {
+              padronErrorDiv.style.display = 'none';
+            }, 5000);
           }
+        } catch (err) {
+          razonSocialInput.readOnly = false;
+          direccionInput.readOnly = false;
+          padronErrorDiv.style.display = 'block';
 
-          const notifResponse = await fetch('/api/facturasmail/solicitud', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-            },
-            body: JSON.stringify({ cuit_usuario, cliente_cuit, tipo_cbte, descripcion, cantidad, precio_unitario, importe, fecha })
-          });
-
-          const notifData = await notifResponse.json();
-
-          if (!notifResponse.ok) {
-            resultDiv.innerHTML = `⚠️ Factura guardada pero no se pudo notificar: ${notifData.message || 'Error en la notificación'}`;
-            return;
-          }
-
-          resultDiv.innerHTML = `
-            ✅ <strong>Factura registrada correctamente</strong><br>
-            ID temporal: ${dbData.id || 'N/D'}<br>
-            En breve recibirás confirmación.
-          `;
-          form.reset();
-        } catch (error) {
-          resultDiv.innerHTML = `❌ Error inesperado: ${error.message}`;
+          // Ocultar el mensaje después de 5 segundos
+          setTimeout(() => {
+            padronErrorDiv.style.display = 'none';
+          }, 5000);
         }
       });
+
+      // Mostrar u ocultar fechas según el concepto seleccionado
+      conceptoSelect.addEventListener('change', () => {
+        const valor = parseInt(conceptoSelect.value);
+        if (valor === 2 || valor === 3) {
+          fechasServicioDiv.style.display = 'block';
+        } else {
+          fechasServicioDiv.style.display = 'none';
+        }
+      });
+
+      function actualizarPrecioTotal() {
+      const cantidad = parseFloat(cantidadInput.value);
+      const precioUnitario = parseFloat(precioUnitarioInput.value);
+      
+      if (!isNaN(cantidad) && !isNaN(precioUnitario)) {
+        const total = cantidad * precioUnitario;
+        precioTotalInput.value = total.toFixed(2);
+      } else {
+        precioTotalInput.value = '';
+      }
     }
-   }, 250);
-  break;
+
+    cantidadInput.addEventListener('input', actualizarPrecioTotal);
+    precioUnitarioInput.addEventListener('input', actualizarPrecioTotal);
+
+    // Ejecutar al cargar
+    actualizarPrecioTotal();
+
+    // Envío del formulario
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(form);
+  const cuit_usuario = formData.get('cuit_usuario');
+  const cliente_cuit = formData.get('cliente_cuit');
+  const tipo_documento = parseInt(formData.get('tipo_documento'));
+  const tipo_cbte = parseInt(formData.get('tipo_cbte'));
+  const descripcion = formData.get('descripcion');
+  const cantidad = parseFloat(formData.get('cantidad'));
+  const precio_unitario = parseFloat(formData.get('precio_unitario'));
+  const importe = cantidad * precio_unitario;
+  const fecha = formData.get('fecha');
+  const razonSocial = formData.get('razonSocial');
+  const direccion = formData.get('direccion');
+  const concepto = parseInt(formData.get('concepto')) || 1;
+  const fecha_serv_desde = formData.get('fecha_serv_desde') || null;
+  const fecha_serv_hasta = formData.get('fecha_serv_hasta') || null;
+  const fecha_venc_pago = formData.get('fecha_venc_pago') || null;
+
+  const condicionIVASelect = document.getElementById('condicion_iva');
+  const condicion_iva = condicionIVASelect.value;
+  const condicion_iva_texto = condicionIVASelect.options[condicionIVASelect.selectedIndex]?.text || '';
+
+  // 🔄 Obtener datos fiscales actualizados desde el backend
+  let nombre = '';
+  let nombre_fantasia = '';
+  let domicilio_fiscal = '';
+  let inicio_actividades = '';
+
+  try {
+    const res = await fetch('/api/perfil/datos-fiscales', {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+
+    if (!res.ok) throw new Error('No se pudieron obtener los datos fiscales');
+
+    const datos = await res.json();
+
+    nombre = datos.nombre || '';
+    nombre_fantasia = datos.nombre_fantasia || '';
+    domicilio_fiscal = datos.domicilio_fiscal || '';
+    inicio_actividades = datos.inicio_actividades || '';
+  } catch (err) {
+    resultDiv.innerHTML = `❌ Error al obtener datos fiscales: ${err.message}`;
+    return;
+  }
+
+  // const nombreFinal = (nombre_fantasia && nombre_fantasia.trim() !== '') ? nombre_fantasia : nombre;
+
+  // Desactivar botón y mostrar spinner
+  emitirBtn.disabled = true;
+  btnText.textContent = 'Generando...';
+  btnSpinner.classList.remove('hidden');
+
+  if (
+    !cuit_usuario || !cliente_cuit || isNaN(tipo_cbte) || !fecha ||
+    !descripcion || isNaN(cantidad) || isNaN(precio_unitario)
+  ) {
+    resultDiv.innerHTML = `❌ Por favor completá todos los campos correctamente.`;
+    return;
+  }
+
+  const facturaPayload = {
+    cuit_usuario,
+    cliente_cuit,
+    tipo_cbte,
+    tipo_documento,
+    descripcion,
+    cantidad,
+    precio_unitario,
+    importe,
+    fecha,
+    razonSocial,
+    direccion,
+    concepto,
+    fecha_serv_desde,
+    fecha_serv_hasta,
+    fecha_venc_pago,
+    nombre,
+    nombre_fantasia,
+    domicilio_fiscal,
+    inicio_actividades,
+    condicion_iva,
+    condicion_iva_texto
+  };
+
+  try {
+    const dbResponse = await fetch('/api/facturas', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+      },
+      body: JSON.stringify(facturaPayload)
+    });
+
+    const dbData = await dbResponse.json();
+
+    if (!dbResponse.ok) {
+      throw new Error(`Error al guardar en base de datos: ${dbData.message || 'Error desconocido'}`);
+    }
+
+    const notifResponse = await fetch('/api/facturasmail/solicitud', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+      },
+      body: JSON.stringify(facturaPayload)
+    });
+
+    const notifData = await notifResponse.json();
+
+    if (!notifResponse.ok) {
+      throw new Error(`Factura guardada pero no se pudo notificar: ${notifData.message || 'Error en la notificación'}`);
+    }
+
+    console.log('Payload enviado a AFIP:', facturaPayload);
+
+const afipResponse = await fetch('/api/afip/emitir', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+  },
+  body: JSON.stringify(facturaPayload)
+});
+
+if (!afipResponse.ok) {
+  const errorText = await afipResponse.text();
+  throw new Error(`Factura guardada pero falló la conexión con AFIP: ${errorText}`);
+}
+
+// ✅ Directamente obtenés el PDF
+const pdfBlob = await afipResponse.blob();
+
+const url = window.URL.createObjectURL(pdfBlob);
+const link = document.createElement('a');
+link.href = url;
+link.download = `factura.pdf`;
+document.body.appendChild(link);
+link.click();
+document.body.removeChild(link);
+window.URL.revokeObjectURL(url);
+
+resultDiv.innerHTML = `
+  ✅ <strong>Factura registrada correctamente</strong><br>
+  El archivo PDF fue generado y descargado correctamente.
+`;
+
+    form.reset();
+  } catch (error) {
+    resultDiv.innerHTML = `❌ ${error.message}`;
+  } finally {
+    emitirBtn.disabled = false;
+    btnText.textContent = 'Generar Factura';
+    btnSpinner.classList.add('hidden');
+  }
+});
+};
+}, 250);
+break;
 
 case "iibb":
   title.textContent = "IIBB - Rentas Misiones";
@@ -586,6 +888,89 @@ case "plan": {
   `;
   break;
 }
+
+case "config": 
+title.textContent = "Configuración";
+  content.innerHTML = `
+    <div class="bg-white p-6 rounded shadow-md max-w-2xl mx-auto text-center">
+      <h2 class="text-2xl font-bold text-blue-700 mb-4">Terminá de configurar tus datos</h2>
+      <p class="text-gray-700 mb-6">Cargá tus datos para poder generar las facturas:</p>
+
+      <form id="datosFiscalesForm" class="space-y-4">
+      <div>
+        <label class="block font-medium">Domicilio Fiscal</label>
+        <input type="text" name="domicilio_fiscal" required class="w-full border border-gray-300 p-2 rounded">
+      </div>
+
+      <div>
+        <label class="block font-medium">Nombre de Fantasía (Opcional)</label>
+        <input type="text" name="nombre_fantasia" class="w-full border border-gray-300 p-2 rounded">
+      </div>
+
+      <div>
+        <label class="block font-medium">Nº de Inscripción en IIBB</label>
+        <input type="text" name="numiibb" required class="w-full border border-gray-300 p-2 rounded">
+      </div>
+
+      <div>
+        <label class="block font-medium">Fecha de Inicio de Actividades</label>
+        <input type="date" name="inicio_actividades" required class="w-full border border-gray-300 p-2 rounded">
+      </div>
+
+      <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
+        Guardar Datos Fiscales
+      </button>
+    </form>
+  `;
+
+  document.getElementById('datosFiscalesForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const datos = Object.fromEntries(formData.entries());
+
+  try {
+      const response = await fetch('/api/perfil/datos-fiscales', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(datos),
+    });
+
+    if (response.ok) {
+      alert('Datos fiscales guardados correctamente.');
+    } else {
+      alert('Error al guardar los datos fiscales.');
+    }
+  } catch (error) {
+    console.error('Error al enviar datos:', error);
+  }
+});
+
+fetch('/api/perfil/datos-fiscales', {
+  headers: {
+    'Authorization': `Bearer ${localStorage.getItem('token')}`
+  }
+})
+.then(res => {
+  if (!res.ok) throw new Error('No se pudieron obtener los datos fiscales');
+  return res.json();
+})
+.then(datos => {
+  document.querySelector('[name="domicilio_fiscal"]').value = datos.domicilio_fiscal || '';
+  document.querySelector('[name="nombre_fantasia"]').value = datos.nombre_fantasia || '';
+  document.querySelector('[name="numiibb"]').value = datos.numiibb || '';
+  document.querySelector('[name="inicio_actividades"]').value = datos.inicio_actividades?.slice(0, 10) || '';
+
+})
+
+.catch(err => {
+  console.error(err);
+  // Podés mostrar un mensaje si querés
+});
+
+  break;
 
 case "usuarios":
   title.textContent = "Usuarios Registrados";

@@ -1,4 +1,4 @@
-// public/js/factura.js
+// public/js/facturacion.js
 document.getElementById('emitirFacturaBtn').addEventListener('click', () => {
     const token = localStorage.getItem('token');
     fetch('/api/factura/emitir', {
