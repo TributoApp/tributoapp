@@ -151,10 +151,16 @@ const qrImageDataUrl = await QRCode.toDataURL(qrUrl);
       qr: qrImageDataUrl
     });
 
+    const chromium = require('@sparticuz/chromium');
+    const puppeteer = require('puppeteer-core');
+
     const browser = await puppeteer.launch({
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
     });
+
 
     const page = await browser.newPage();
     await page.setContent(htmlRenderizado, { waitUntil: 'networkidle0' });
