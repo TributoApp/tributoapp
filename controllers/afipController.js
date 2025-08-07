@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const Afip = require('@afipsdk/afip.js');
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 const handlebars = require('handlebars');
 
 exports.emitirFactura = async (req, res) => {

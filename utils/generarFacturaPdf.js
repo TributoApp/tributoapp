@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const handlebars = require('handlebars');
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 
 async function generarFacturaPDF(datosFactura) {
   const templatePath = path.join(__dirname, '..', 'templates', 'bill.html'); // Asegurate que esté bien el path
