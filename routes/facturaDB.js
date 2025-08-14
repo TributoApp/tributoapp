@@ -3,24 +3,33 @@ const express = require('express');
 const router = express.Router();
 const pool = require('./db'); // conexión a PostgreSQL
 const verifyToken = require('../middleware/authMiddleware');
-const upload = require('../middleware/upload');
+//const upload = require('../middleware/upload');
 
-// Crear una nueva factura
+// Crear factura SOLO después de generar el PDF
 router.post('/facturas', verifyToken, async (req, res) => {
-  const { cuit_usuario, cliente_cuit, tipo_cbte, importe, fecha } = req.body;
+  const { cuit_usuario, cliente_cuit, tipo_cbte, importe, fecha, descripcion } = req.body;
 
   try {
+    // 1️⃣ Generar el PDF (llama a tu función de generación con Puppeteer o lo que uses)
+    const pdfUrl = await generarPDFyGuardar(cuit_usuario, cliente_cuit, tipo_cbte, importe, fecha, descripcion);
+    // pdfUrl = algo como "https://tuservidor.com/uploads/factura_1234.pdf"
+
+    // 2️⃣ Insertar en base con la URL del PDF
     const result = await pool.query(
-      `INSERT INTO facturas_solicitadas (cuit_usuario, cliente_cuit, tipo_cbte, importe, fecha)
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [cuit_usuario, cliente_cuit, tipo_cbte, importe, fecha]
+      `INSERT INTO facturas_solicitadas
+       (cuit_usuario, cliente_cuit, tipo_cbte, importe, fecha, pdf_url)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING *`,
+      [cuit_usuario, cliente_cuit, tipo_cbte, importe, fecha, pdfUrl]
     );
+
     res.json(result.rows[0]);
   } catch (err) {
-    console.error("❌ Error al insertar factura:", err);
-    res.status(500).send("Error al insertar factura");
+    console.error("❌ Error al generar factura:", err);
+    res.status(500).send("Error al generar factura");
   }
 });
+
 
 // Obtener facturas de los usuarios
 router.get('/facturas', verifyToken, async (req, res) => {
@@ -70,23 +79,6 @@ router.put('/facturas/:id/estado', verifyToken, async (req, res) => {
   } catch (error) {
     console.error("❌ Error al actualizar factura:", error);
     res.status(500).json({ message: 'Error al actualizar factura' });
-  }
-});
-
-// Subir PDF de factura
-router.post('/facturas/:id/pdf', upload.single('pdf'), async (req, res) => {
-  const facturaId = req.params.id;
-  const pdfPath = `/uploads/${req.file.filename}`; // Ruta accesible desde el cliente
-
-  try {
-    await pool.query(
-      'UPDATE facturas_solicitadas SET pdf_url = $1 WHERE id = $2',
-      [pdfPath, facturaId]
-    );
-    res.json({ message: 'PDF subido correctamente', pdf_url: pdfPath });
-  } catch (error) {
-    console.error('❌ Error al guardar el PDF:', error);
-    res.status(500).json({ message: 'Error al guardar el PDF' });
   }
 });
 

@@ -119,55 +119,67 @@ case "perfil":
   const mesSelect = document.getElementById('mes');
   const anioSelect = document.getElementById('anio');
   const filtrarBtn = document.getElementById('filtrarBtn');
-  const iibbInput = document.getElementById('iibbPorcentajeInput');
-  const panelEdicion = document.getElementById('editarIibbPanel');
+//  const iibbInput = document.getElementById('iibbPorcentajeInput');
+//  const panelEdicion = document.getElementById('editarIibbPanel');
 
 
 
-  const cargarFacturas = (mes, anio) => {
-    resumenFact.textContent = "$0.00";
-    resumenIIBB.textContent = "$0.00";
-    tablaFacturas.innerHTML = `<tr><td colspan="5" class="px-4 py-3 text-center text-gray-500">🔄 Cargando datos...</td></tr>`;
+const cargarFacturas = (mes, anio) => {
+  resumenFact.textContent = "$0.00";
+  resumenIIBB.textContent = "$0.00";
+  tablaFacturas.innerHTML = `
+    <tr>
+      <td colspan="4" class="px-4 py-3 text-center text-gray-500">
+        🔄 Cargando datos...
+      </td>
+    </tr>
+  `;
 
-    fetch('/api/facturas', {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-      }
-    })
+  fetch('/api/facturas', {
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+    }
+  })
     .then(res => res.json())
     .then(facturas => {
-      const hechas = facturas.filter(f => {
+      const filtradas = facturas.filter(f => {
         const fecha = new Date(f.fecha);
-        return f.estado === 'hecha' &&
-          fecha.getMonth() + 1 === mes &&
-          fecha.getFullYear() === anio;
+        return fecha.getMonth() + 1 === mes &&
+               fecha.getFullYear() === anio;
       });
 
-      const total = hechas.reduce((sum, f) => sum + parseFloat(f.importe), 0);
+      const total = filtradas.reduce((sum, f) => sum + parseFloat(f.importe), 0);
       const porcentaje = parseFloat(localStorage.getItem('iibb')) || 3.5;
       const iibb = total * (porcentaje / 100);
-
 
       resumenFact.textContent = `$${total.toFixed(2)}`;
       resumenIIBB.textContent = `$${iibb.toFixed(2)}`;
 
-      if (hechas.length === 0) {
-        tablaFacturas.innerHTML = `<tr><td colspan="5" class="px-4 py-3 text-center text-gray-500">No hay facturas registradas para este mes.</td></tr>`;
+      if (filtradas.length === 0) {
+        tablaFacturas.innerHTML = `
+          <tr>
+            <td colspan="4" class="px-4 py-3 text-center text-gray-500">
+              No hay facturas registradas para este mes.
+            </td>
+          </tr>
+        `;
         return;
       }
 
       tablaFacturas.innerHTML = "";
-      hechas.forEach(f => {
+      filtradas.forEach(f => {
+        const fechaFormateada = new Date(f.fecha).toLocaleDateString('es-AR');
         const tr = document.createElement("tr");
         tr.className = "border-b hover:bg-gray-50";
 
         tr.innerHTML = `
-          <td class="px-4 py-2 border">${f.fecha}</td>
+          <td class="px-4 py-2 border">${fechaFormateada}</td>
           <td class="px-4 py-2 border">${f.cliente_cuit}</td>
           <td class="px-4 py-2 border">$${Number(f.importe).toFixed(2)}</td>
-          <td class="px-4 py-2 border">${f.estado}</td>
           <td class="px-4 py-2 border">
-            ${f.pdf_url ? `<a href="${f.pdf_url}" target="_blank" class="text-blue-600 underline">📄 Ver PDF</a>` : `<span class="text-gray-400 italic">No disponible</span>`}
+            ${f.pdf_url
+              ? `<a href="${f.pdf_url}" target="_blank" class="text-blue-600 underline">📄 Ver PDF</a>`
+              : `<span class="text-gray-400 italic">No disponible</span>`}
           </td>
         `;
         tablaFacturas.appendChild(tr);
@@ -175,9 +187,16 @@ case "perfil":
     })
     .catch(err => {
       console.error("❌ Error al cargar perfil:", err);
-      tablaFacturas.innerHTML = `<tr><td colspan="5" class="px-4 py-3 text-center text-red-600">❌ Error al cargar facturas.</td></tr>`;
+      tablaFacturas.innerHTML = `
+        <tr>
+          <td colspan="4" class="px-4 py-3 text-center text-red-600">
+            ❌ Error al cargar facturas.
+          </td>
+        </tr>
+      `;
     });
-  };
+};
+
 
   // Inicial
   cargarFacturas(new Date().getMonth() + 1, new Date().getFullYear());
@@ -1086,149 +1105,71 @@ case "facturas_admin":
     </div>
   `;
 
-
   if (cuitLogueado === cuitAdmin) {
     const adminPanel = document.getElementById('adminPanel');
     if (adminPanel) adminPanel.style.display = 'block';
 
-const lista = document.getElementById('adminFacturasList');
-if (!lista) return;
+    const lista = document.getElementById('adminFacturasList');
+    if (!lista) return;
 
-fetch('/api/facturas', {
-  headers: {
-    'Authorization': `Bearer ${localStorage.getItem('token')}`
-  }
-})
-.then(res => res.json())
-.then(facturas => {
-  // Filtrar facturas pendientes
-  const pendientes = facturas.filter(f => f.estado === 'pendiente');
-
-  // Crear la tabla base
-  let html = `
-    <table class="min-w-full border-collapse border border-gray-300 text-sm">
-      <thead class="bg-gray-200">
-        <tr>
-          <th class="p-2 border">CUIT Usuario</th>
-          <th class="p-2 border">Cliente CUIT</th>
-          <th class="p-2 border">Importe</th>
-          <th class="p-2 border">Fecha</th>
-          <th class="p-2 border">Estado</th>
-          <th class="p-2 border">Acciones</th>
-          <th class="p-2 border">PDF</th>
-        </tr>
-      </thead>
-      <tbody>
-  `;
-
-  pendientes.forEach(f => {
-    html += `
-      <tr class="border-t border-gray-300">
-        <td class="p-2 border">${f.cuit_usuario}</td>
-        <td class="p-2 border">${f.cliente_cuit}</td>
-        <td class="p-2 border">$${Number(f.importe).toFixed(2)}</td>
-        <td class="p-2 border">${f.fecha}</td>
-        <td class="p-2 border">${f.estado}</td>
-        <td class="p-2 border">
-        <button class="bg-green-600 text-white px-3 py-1 rounded mb-1 text-xs" onclick="marcarFacturaHecha(${f.id})">
-          ✅ Marcar como hecha
-        </button>
-        <form class="upload-pdf-form" data-id="${f.id}" enctype="multipart/form-data">
-          <input type="file" name="pdf" accept="application/pdf" required class="text-xs mb-1">
-          <button type="submit" class="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600">Subir PDF</button>
-        </form>
-        <button class="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700 mt-1" onclick="eliminarFactura(${f.id})">
-          🗑️ Eliminar
-        </button>
-      </td>
-        <td class="p-2 border text-center">
-          ${f.pdf_url ? `<a href="${f.pdf_url}" target="_blank" class="text-blue-600 underline text-xs">📄 Ver</a>` : '—'}
-        </td>
-      </tr>
-    `;
-  });
-
-  html += `
-      </tbody>
-    </table>
-  `;
-
-  lista.innerHTML = html;
-
-  // Agregar listeners para subir PDF
-  document.querySelectorAll('.upload-pdf-form').forEach(form => {
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const id = form.dataset.id;
-      const formData = new FormData(form);
-
-      try {
-        const res = await fetch(`/api/facturas/${id}/pdf`, {
-          method: 'POST',
-          body: formData
-        });
-
-        const data = await res.json();
-
-        if (res.ok) {
-          alert('✅ PDF subido correctamente');
-          // Recargar sección o actualizar tabla
-          loadSection('facturas_admin');
-        } else {
-          alert(`❌ Error: ${data.message}`);
-        }
-      } catch (err) {
-        alert(`❌ Error inesperado: ${err.message}`);
+    fetch('/api/facturas', {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
-    });
-  });
+    })
+    .then(res => res.json())
+    .then(facturas => {
+      const pendientes = facturas.filter(f => f.estado === 'pendiente');
 
-  // Eliminar una factura (solo admin)
-router.delete('/facturas/:id', verifyToken, async (req, res) => {
-  const { id } = req.params;
+      let html = `
+        <table class="min-w-full border-collapse border border-gray-300 text-sm">
+          <thead class="bg-gray-200">
+            <tr>
+              <th class="p-2 border">CUIT Usuario</th>
+              <th class="p-2 border">Cliente CUIT</th>
+              <th class="p-2 border">Importe</th>
+              <th class="p-2 border">Fecha</th>
+              <th class="p-2 border">Estado</th>
+              <th class="p-2 border">Eliminar</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
 
-  try {
-    await pool.query('DELETE FROM facturas_solicitadas WHERE id = $1', [id]);
-    res.json({ message: 'Factura eliminada correctamente' });
-  } catch (error) {
-    console.error("❌ Error al eliminar factura:", error);
-    res.status(500).json({ message: 'Error al eliminar factura' });
+      pendientes.forEach(f => {
+        html += `
+          <tr class="border-t border-gray-300">
+            <td class="p-2 border">${f.cuit_usuario}</td>
+            <td class="p-2 border">${f.cliente_cuit}</td>
+            <td class="p-2 border">$${Number(f.importe).toFixed(2)}</td>
+            <td class="p-2 border">${f.fecha}</td>
+            <td class="p-2 border">${f.estado}</td>
+            <td class="p-2 border text-center">
+              <button class="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700" onclick="eliminarFactura(${f.id})">
+                🗑️ Eliminar
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+
+      html += `
+          </tbody>
+        </table>
+      `;
+
+      lista.innerHTML = html;
+    })
+    .catch(err => console.error("❌ Error al cargar facturas para admin:", err));
   }
-});
-})
-.catch(err => console.error("❌ Error al cargar facturas para admin:", err));
-}
   break;
+
 
     default:
       title.textContent = "Bienvenido";
       content.innerHTML = `<p>Seleccioná una opción del menú para comenzar.</p>`;
   }
 }
-
-async function marcarFacturaHecha(id) {
-  try {
-    const res = await fetch(`/api/facturas/${id}/estado`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      },
-      body: JSON.stringify({ estado: 'hecha' })
-    });
-
-    if (res.ok) {
-      alert("✅ Factura marcada como hecha");
-      loadSection('facturacion'); // recarga sección
-    } else {
-      alert("❌ No se pudo marcar la factura");
-    }
-  } catch (err) {
-    console.error(err);
-    alert("❌ Error al actualizar estado");
-  }
-}
-
 
 function logout() {
   alert("Sesión cerrada");

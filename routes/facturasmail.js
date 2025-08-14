@@ -9,22 +9,6 @@ const fetch = require('node-fetch'); // 👈 agregado para llamadas fetch
 const ADMIN_PHONE = '5493764246978'; // 👈 tu número con código de país
 const CALLMEBOT_APIKEY = '8974175'; // 👈 tu API Key CallMeBot
 
-// 📤 Ruta para solicitud de factura
-router.post('/solicitud', async (req, res) => {
-  const { cuit_usuario, cliente_cuit, tipo_cbte, importe, fecha, descripcion, cantidad, precio_unitario } = req.body;
-
-  const mensaje = ` Nueva solicitud de factura\nCUIT Usuario: ${cuit_usuario}\nCUIT Cliente: ${cliente_cuit}\nCantidad: $${cantidad}\nDescripcion: $${descripcion}\nPrecio unitario: $${precio_unitario}\nImporte: $${importe}\nFecha: ${fecha}`;
-
-  try {
-    const url = `https://api.callmebot.com/whatsapp.php?phone=${ADMIN_PHONE}&text=${encodeURIComponent(mensaje)}&apikey=${CALLMEBOT_APIKEY}`;
-    await axios.get(url);
-    res.json({ message: 'Solicitud realizada correctamente' });
-  } catch (err) {
-    console.error('❌ Error al enviar la solicitud:', err);
-    res.status(500).json({ message: 'Error al enviar la solicitud' });
-  }
-});
-
 // 📤 Ruta para solicitud de formulario 322 / IIBB
 router.post('/iibb', verifyToken, async (req, res) => {
   const { cuit_usuario } = req.body;
