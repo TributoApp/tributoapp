@@ -101,7 +101,6 @@ case "perfil":
               <th class="px-4 py-2 border">Fecha</th>
               <th class="px-4 py-2 border">Cliente CUIT</th>
               <th class="px-4 py-2 border">Importe</th>
-              <th class="px-4 py-2 border">Estado</th>
               <th class="px-4 py-2 border">PDF</th>
             </tr>
           </thead>

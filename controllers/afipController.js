@@ -6,14 +6,14 @@ const handlebars = require('handlebars');
 
 exports.emitirFactura = async (req, res) => {
   try {
-    // Leer database
+    // 📌 Conexión a la DB
     const { Pool } = require('pg');
     const pool = new Pool({
       connectionString: process.env.DATABASE_URL,
       ssl: { rejectUnauthorized: false },
     });
 
-    // Leer certificados
+    // 📌 Leer certificados AFIP
     const cert = process.env.CERT_STRING;
     const key = process.env.KEY_STRING;
 
@@ -24,6 +24,7 @@ exports.emitirFactura = async (req, res) => {
       production: false
     });
 
+    // 📌 Datos recibidos del frontend
     const {
       cliente_cuit,
       condicion_iva,
@@ -46,7 +47,7 @@ exports.emitirFactura = async (req, res) => {
       condicion_iva_texto
     } = req.body;
 
-        // ✅ Obtener nombre directamente de la tabla usuarios
+    // 📌 Obtener nombre del usuario
     const userResult = await pool.query(
       'SELECT nombre FROM usuarios WHERE cuit = $1',
       [cuit_usuario]
@@ -61,11 +62,14 @@ exports.emitirFactura = async (req, res) => {
     const tipo_de_factura = 11;
     const tipo_de_documento = parseInt(tipo_documento);
 
+    // 📌 Obtener último comprobante
     const last_voucher = await afip.ElectronicBilling.getLastVoucher(punto_de_venta, tipo_de_factura);
     const numero_de_factura = last_voucher + 1;
 
+    // 📌 Formateo de fechas
     const formatDate = (dateStr) => dateStr ? parseInt(dateStr.replace(/-/g, '')) : undefined;
 
+    // 📌 Datos a enviar a AFIP
     const data = {
       CantReg: 1,
       PtoVta: punto_de_venta,
@@ -90,38 +94,36 @@ exports.emitirFactura = async (req, res) => {
       CondicionIVAReceptorId: parseInt(condicion_iva) || 6
     };
 
+    // 📌 Emitir comprobante en AFIP
     const response = await afip.ElectronicBilling.createVoucher(data);
     const cae = response.CAE;
     const vencimiento = response.CAEFchVto;
 
+    // 📌 Generar QR
     const QRCode = require('qrcode');
-
-const qrPayload = {
-  ver: 1,
-  fecha: fecha, // Ya está en formato YYYY-MM-DD
-  cuit: parseInt(cuit_usuario),
-  ptoVta: punto_de_venta,
-  tipoCmp: tipo_de_factura,
-  nroCmp: numero_de_factura,
-  importe: parseFloat(importe),
-  moneda: 'PES',
-  ctz: 1,
-  tipoDocRec: tipo_de_documento,
-  nroDocRec: parseInt(cliente_cuit),
-  tipoCodAut: 'E',
-  codAut: cae
-};
-
-const qrDataBase64 = Buffer.from(JSON.stringify(qrPayload)).toString('base64');
-const qrUrl = `https://www.afip.gob.ar/fe/qr/?p=${qrDataBase64}`;
-const qrImageDataUrl = await QRCode.toDataURL(qrUrl);
-
+    const qrPayload = {
+      ver: 1,
+      fecha: fecha,
+      cuit: parseInt(cuit_usuario),
+      ptoVta: punto_de_venta,
+      tipoCmp: tipo_de_factura,
+      nroCmp: numero_de_factura,
+      importe: parseFloat(importe),
+      moneda: 'PES',
+      ctz: 1,
+      tipoDocRec: tipo_de_documento,
+      nroDocRec: parseInt(cliente_cuit),
+      tipoCodAut: 'E',
+      codAut: cae
+    };
+    const qrDataBase64 = Buffer.from(JSON.stringify(qrPayload)).toString('base64');
+    const qrUrl = `https://www.afip.gob.ar/fe/qr/?p=${qrDataBase64}`;
+    const qrImageDataUrl = await QRCode.toDataURL(qrUrl);
 
     const nombreFinal = (nombre_fantasia && nombre_fantasia.trim() !== '') ? nombre_fantasia : nombre;
     const inicioActividadesFormatted = new Date(inicio_actividades).toISOString().split('T')[0];
 
-
-    // 👉 Generar PDF
+    // 📌 Generar PDF con Puppeteer
     const templatePath = path.join(__dirname, '../templates/bill.html');
     const html = fs.readFileSync(templatePath, 'utf-8');
     const template = handlebars.compile(html);
@@ -161,18 +163,21 @@ const qrImageDataUrl = await QRCode.toDataURL(qrUrl);
       headless: chromium.headless,
     });
 
-
     const page = await browser.newPage();
     await page.setContent(htmlRenderizado, { waitUntil: 'networkidle0' });
 
     const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
-
     await browser.close();
 
-    // 👉 Opcional: guardar el PDF en disco (descomentar si querés)
-    // fs.writeFileSync(`factura-${numero_de_factura}.pdf`, pdfBuffer);
+    // 📌 Guardar en la base de datos
+    const pdfBase64 = pdfBuffer.toString('base64');
+    await pool.query(
+      `INSERT INTO facturas (cuit_usuario, cliente_cuit, importe, fecha, pdf_url)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [cuit_usuario, cliente_cuit, importe, fecha, pdfBase64]
+    );
 
-    // 👉 Enviar PDF y datos AFIP como respuesta
+    // 📌 Responder con el PDF
     res.set({
       'Content-Type': 'application/pdf',
       'Content-Disposition': `inline; filename="factura-${numero_de_factura}.pdf"`,
@@ -185,6 +190,7 @@ const qrImageDataUrl = await QRCode.toDataURL(qrUrl);
     res.status(500).json({ message: 'Error al emitir factura', detalle: error.message });
   }
 };
+
 
 
 
