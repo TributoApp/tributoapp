@@ -588,7 +588,7 @@ form.addEventListener('submit', async (e) => {
       throw new Error(`Error al guardar en base de datos: ${dbData.message || 'Error desconocido'}`);
     }
 
-    const notifResponse = await fetch('/api/facturasmail/solicitud', {
+    const notifResponse = await fetch('/api/facturas', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -722,50 +722,50 @@ case "iibb":
     const cuit_usuario = localStorage.getItem('cuit_usuario');
 
     // Solicitud 341
-    document.getElementById("solicitar341").addEventListener("click", async () => {
-      const resultado = document.getElementById("iibbResultado");
+//    document.getElementById("solicitar341").addEventListener("click", async () => {
+//      const resultado = document.getElementById("iibbResultado");
 
-      try {
-        const res = await fetch("/api/facturasmail/iibb", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${localStorage.getItem('token')}`
-          },
-          body: JSON.stringify({ cuit_usuario })
-        });
+//      try {
+//       const res = await fetch("/api/facturasmail/iibb", {
+//          method: "POST",
+//          headers: {
+//            "Content-Type": "application/json",
+//            "Authorization": `Bearer ${localStorage.getItem('token')}`
+//          },
+//          body: JSON.stringify({ cuit_usuario })
+//        });
 
-        const data = await res.json();
-        resultado.innerHTML = res.ok
-          ? `✅ Solicitud enviada correctamente. En breve recibirás el Formulario 341.`
-          : `❌ Error al solicitar el Formulario 341: ${data.message || "Error desconocido"}`;
-      } catch (err) {
-        resultado.innerHTML = `❌ Error inesperado: ${err.message}`;
-      }
-    });
+//        const data = await res.json();
+//        resultado.innerHTML = res.ok
+//          ? `✅ Solicitud enviada correctamente. En breve recibirás el Formulario 341.`
+//          : `❌ Error al solicitar el Formulario 341: ${data.message || "Error desconocido"}`;
+//      } catch (err) {
+//        resultado.innerHTML = `❌ Error inesperado: ${err.message}`;
+//      }
+//    });
 
     // Solicitud DDJJ
-    document.getElementById("solicitarDDJJ").addEventListener("click", async () => {
-      const resultado = document.getElementById("ddjjResultado");
+//    document.getElementById("solicitarDDJJ").addEventListener("click", async () => {
+//      const resultado = document.getElementById("ddjjResultado");
 
-      try {
-        const res = await fetch("/api/facturasmail/ddjj", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${localStorage.getItem('token')}`
-          },
-          body: JSON.stringify({ cuit_usuario })
-        });
+//      try {
+//        const res = await fetch("/api/facturasmail/ddjj", {
+//          method: "POST",
+//          headers: {
+//            "Content-Type": "application/json",
+//            "Authorization": `Bearer ${localStorage.getItem('token')}`
+//          },
+//          body: JSON.stringify({ cuit_usuario })
+//        });
 
-        const data = await res.json();
-        resultado.innerHTML = res.ok
-          ? `✅ Solicitud de DDJJ enviada correctamente. Te contactaremos a la brevedad.`
-          : `❌ Error al solicitar la DDJJ: ${data.message || "Error desconocido"}`;
-      } catch (err) {
-        resultado.innerHTML = `❌ Error inesperado: ${err.message}`;
-      }
-    });
+//        const data = await res.json();
+//        resultado.innerHTML = res.ok
+//          ? `✅ Solicitud de DDJJ enviada correctamente. Te contactaremos a la brevedad.`
+//          : `❌ Error al solicitar la DDJJ: ${data.message || "Error desconocido"}`;
+//      } catch (err) {
+//        resultado.innerHTML = `❌ Error inesperado: ${err.message}`;
+//      }
+//    });
 
   }, 100);
 
