@@ -14,7 +14,7 @@ router.post('/facturas', verifyToken, async (req, res) => {
 
     // 2️⃣ Insertar en base con la URL del PDF
     const result = await pool.query(
-      `INSERT INTO facturas
+      `INSERT INTO facturas_solicitadas
        (cuit_usuario, cliente_cuit, importe, fecha, pdf_url)
        VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
