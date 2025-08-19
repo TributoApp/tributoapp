@@ -201,7 +201,7 @@ filtrarBtn.addEventListener("click", () => {
   const anio = parseInt(anioSelect.value);
   cargarFacturas(mes, anio);
 });
-
+break;
 
 case "facturacion":
   title.textContent = "Facturación";
