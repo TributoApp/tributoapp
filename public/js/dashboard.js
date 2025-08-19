@@ -112,16 +112,12 @@ case "perfil":
     </div>
   `;
 
-  const resumenFact = document.getElementById('totalFacturado');
-  const resumenIIBB = document.getElementById('iibbEstimado');
-  const tablaFacturas = document.getElementById('tablaFacturas');
-  const mesSelect = document.getElementById('mes');
-  const anioSelect = document.getElementById('anio');
-  const filtrarBtn = document.getElementById('filtrarBtn');
-//  const iibbInput = document.getElementById('iibbPorcentajeInput');
-//  const panelEdicion = document.getElementById('editarIibbPanel');
-
-
+const resumenFact = document.getElementById('totalFacturado');
+const resumenIIBB = document.getElementById('iibbEstimado');
+const tablaFacturas = document.getElementById('tablaFacturas');
+const mesSelect = document.getElementById('mes');
+const anioSelect = document.getElementById('anio');
+const filtrarBtn = document.getElementById('filtrarBtn');
 
 const cargarFacturas = (mes, anio) => {
   resumenFact.textContent = "$0.00";
@@ -176,8 +172,8 @@ const cargarFacturas = (mes, anio) => {
           <td class="px-4 py-2 border">${f.cliente_cuit}</td>
           <td class="px-4 py-2 border">$${Number(f.importe).toFixed(2)}</td>
           <td class="px-4 py-2 border">
-            ${f.pdf_url
-              ? `<a href="${f.pdf_url}" target="_blank" class="text-blue-600 underline">📄 Ver PDF</a>`
+            ${f.id
+              ? `<a href="/api/facturas/${f.id}/pdf" target="_blank" class="text-blue-600 underline">📄 Ver PDF</a>`
               : `<span class="text-gray-400 italic">No disponible</span>`}
           </td>
         `;
@@ -185,7 +181,7 @@ const cargarFacturas = (mes, anio) => {
       });
     })
     .catch(err => {
-      console.error("❌ Error al cargar perfil:", err);
+      console.error("❌ Error al cargar facturas:", err);
       tablaFacturas.innerHTML = `
         <tr>
           <td colspan="4" class="px-4 py-3 text-center text-red-600">
@@ -196,18 +192,16 @@ const cargarFacturas = (mes, anio) => {
     });
 };
 
+// Inicial
+cargarFacturas(new Date().getMonth() + 1, new Date().getFullYear());
 
-  // Inicial
-  cargarFacturas(new Date().getMonth() + 1, new Date().getFullYear());
+// Filtro manual
+filtrarBtn.addEventListener("click", () => {
+  const mes = parseInt(mesSelect.value);
+  const anio = parseInt(anioSelect.value);
+  cargarFacturas(mes, anio);
+});
 
-  // Filtro manual
-  filtrarBtn.addEventListener("click", () => {
-    const mes = parseInt(mesSelect.value);
-    const anio = parseInt(anioSelect.value);
-    cargarFacturas(mes, anio);
-  });
-
-  break;
 
 case "facturacion":
   title.textContent = "Facturación";
@@ -603,7 +597,7 @@ form.addEventListener('submit', async (e) => {
       throw new Error(`Factura guardada pero no se pudo notificar: ${notifData.message || 'Error en la notificación'}`);
     }
 
-    console.log('Payload enviado a AFIP:', facturaPayload);
+   // console.log('Payload enviado a AFIP:', facturaPayload);
 
 const afipResponse = await fetch('/api/afip/emitir', {
   method: 'POST',
