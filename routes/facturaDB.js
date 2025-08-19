@@ -5,22 +5,20 @@ const pool = require('./db'); // conexión a PostgreSQL
 const verifyToken = require('../middleware/authMiddleware');
 //const upload = require('../middleware/upload');
 
-// Crear factura SOLO después de generar el PDF
 router.post('/facturas', verifyToken, async (req, res) => {
-  const { cuit_usuario, cliente_cuit, tipo_cbte, importe, fecha, descripcion } = req.body;
+  const { cuit_usuario, cliente_cuit, importe, fecha } = req.body;
 
   try {
-    // 1️⃣ Generar el PDF (llama a tu función de generación con Puppeteer o lo que uses)
-    const pdfUrl = await generarPDFyGuardar(cuit_usuario, cliente_cuit, tipo_cbte, importe, fecha, descripcion);
-    // pdfUrl = algo como "https://tuservidor.com/uploads/factura_1234.pdf"
+    // 1️⃣ Acá generás el PDF y obtenés la URL o path donde se guarda
+    const pdfUrl = `/uploads/factura_${Date.now()}.pdf`;
 
     // 2️⃣ Insertar en base con la URL del PDF
     const result = await pool.query(
-      `INSERT INTO facturas_solicitadas
-       (cuit_usuario, cliente_cuit, tipo_cbte, importe, fecha, pdf_url)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO facturas
+       (cuit_usuario, cliente_cuit, importe, fecha, pdf_url)
+       VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
-      [cuit_usuario, cliente_cuit, tipo_cbte, importe, fecha, pdfUrl]
+      [cuit_usuario, cliente_cuit, importe, fecha, pdfUrl]
     );
 
     res.json(result.rows[0]);
