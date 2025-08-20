@@ -79,14 +79,17 @@ router.get('/facturas/:id/pdf', verifyToken, async (req, res) => {
 
     const pdfBuffer = result.rows[0].pdf_data;
 
+    // Headers para que el navegador lo interprete como PDF
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `inline; filename="factura_${id}.pdf"`);
+
     res.send(pdfBuffer);
   } catch (err) {
     console.error("❌ Error al obtener PDF:", err);
     res.status(500).json({ error: 'Error al obtener PDF' });
   }
 });
+
 
 // Eliminar factura por ID
 router.delete('/facturas/:id', verifyToken, async (req, res) => {

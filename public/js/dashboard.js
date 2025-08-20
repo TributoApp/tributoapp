@@ -112,96 +112,97 @@ case "perfil":
     </div>
   `;
 
-const resumenFact = document.getElementById('totalFacturado');
-const resumenIIBB = document.getElementById('iibbEstimado');
-const tablaFacturas = document.getElementById('tablaFacturas');
-const mesSelect = document.getElementById('mes');
-const anioSelect = document.getElementById('anio');
-const filtrarBtn = document.getElementById('filtrarBtn');
+  const resumenFact = document.getElementById('totalFacturado');
+  const resumenIIBB = document.getElementById('iibbEstimado');
+  const tablaFacturas = document.getElementById('tablaFacturas');
+  const mesSelect = document.getElementById('mes');
+  const anioSelect = document.getElementById('anio');
+  const filtrarBtn = document.getElementById('filtrarBtn');
 
-const cargarFacturas = (mes, anio) => {
-  resumenFact.textContent = "$0.00";
-  resumenIIBB.textContent = "$0.00";
-  tablaFacturas.innerHTML = `
-    <tr>
-      <td colspan="4" class="px-4 py-3 text-center text-gray-500">
-        🔄 Cargando datos...
-      </td>
-    </tr>
-  `;
+  const cargarFacturas = (mes, anio) => {
+    resumenFact.textContent = "$0.00";
+    resumenIIBB.textContent = "$0.00";
+    tablaFacturas.innerHTML = `
+      <tr>
+        <td colspan="4" class="px-4 py-3 text-center text-gray-500">
+          🔄 Cargando datos...
+        </td>
+      </tr>
+    `;
 
-  fetch('/api/facturas', {
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-    }
-  })
-    .then(res => res.json())
-    .then(facturas => {
-      const filtradas = facturas.filter(f => {
-        const fecha = new Date(f.fecha);
-        return fecha.getMonth() + 1 === mes &&
-               fecha.getFullYear() === anio;
-      });
+    fetch('/api/facturas', {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+      }
+    })
+      .then(res => res.json())
+      .then(facturas => {
+        const filtradas = facturas.filter(f => {
+          const fecha = new Date(f.fecha);
+          return fecha.getMonth() + 1 === mes &&
+                 fecha.getFullYear() === anio;
+        });
 
-      const total = filtradas.reduce((sum, f) => sum + parseFloat(f.importe), 0);
-      const porcentaje = parseFloat(localStorage.getItem('iibb')) || 3.5;
-      const iibb = total * (porcentaje / 100);
+        const total = filtradas.reduce((sum, f) => sum + parseFloat(f.importe), 0);
+        const porcentaje = parseFloat(localStorage.getItem('iibb')) || 3.5;
+        const iibb = total * (porcentaje / 100);
 
-      resumenFact.textContent = `$${total.toFixed(2)}`;
-      resumenIIBB.textContent = `$${iibb.toFixed(2)}`;
+        resumenFact.textContent = `$${total.toFixed(2)}`;
+        resumenIIBB.textContent = `$${iibb.toFixed(2)}`;
 
-      if (filtradas.length === 0) {
+        if (filtradas.length === 0) {
+          tablaFacturas.innerHTML = `
+            <tr>
+              <td colspan="4" class="px-4 py-3 text-center text-gray-500">
+                No hay facturas registradas para este mes.
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        tablaFacturas.innerHTML = "";
+        filtradas.forEach(f => {
+          const fechaFormateada = new Date(f.fecha).toLocaleDateString('es-AR');
+          const tr = document.createElement("tr");
+          tr.className = "border-b hover:bg-gray-50";
+
+          tr.innerHTML = `
+            <td class="px-4 py-2 border">${fechaFormateada}</td>
+            <td class="px-4 py-2 border">${f.cliente_cuit}</td>
+            <td class="px-4 py-2 border">$${Number(f.importe).toFixed(2)}</td>
+            <td class="px-4 py-2 border">
+              ${f.id
+                ? `<a href="/api/facturas/${f.id}/pdf" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">📄 Ver PDF</a>`
+                : `<span class="text-gray-400 italic">No disponible</span>`}
+            </td>
+          `;
+          tablaFacturas.appendChild(tr);
+        });
+      })
+      .catch(err => {
+        console.error("❌ Error al cargar facturas:", err);
         tablaFacturas.innerHTML = `
           <tr>
-            <td colspan="4" class="px-4 py-3 text-center text-gray-500">
-              No hay facturas registradas para este mes.
+            <td colspan="4" class="px-4 py-3 text-center text-red-600">
+              ❌ Error al cargar facturas.
             </td>
           </tr>
         `;
-        return;
-      }
-
-      tablaFacturas.innerHTML = "";
-      filtradas.forEach(f => {
-        const fechaFormateada = new Date(f.fecha).toLocaleDateString('es-AR');
-        const tr = document.createElement("tr");
-        tr.className = "border-b hover:bg-gray-50";
-
-        tr.innerHTML = `
-          <td class="px-4 py-2 border">${fechaFormateada}</td>
-          <td class="px-4 py-2 border">${f.cliente_cuit}</td>
-          <td class="px-4 py-2 border">$${Number(f.importe).toFixed(2)}</td>
-          <td class="px-4 py-2 border">
-            ${f.id
-              ? `<a href="/api/facturas/${f.id}/pdf" target="_blank" class="text-blue-600 underline">📄 Ver PDF</a>`
-              : `<span class="text-gray-400 italic">No disponible</span>`}
-          </td>
-        `;
-        tablaFacturas.appendChild(tr);
       });
-    })
-    .catch(err => {
-      console.error("❌ Error al cargar facturas:", err);
-      tablaFacturas.innerHTML = `
-        <tr>
-          <td colspan="4" class="px-4 py-3 text-center text-red-600">
-            ❌ Error al cargar facturas.
-          </td>
-        </tr>
-      `;
-    });
-};
+  };
 
-// Inicial
-cargarFacturas(new Date().getMonth() + 1, new Date().getFullYear());
+  // Inicial
+  cargarFacturas(new Date().getMonth() + 1, new Date().getFullYear());
 
-// Filtro manual
-filtrarBtn.addEventListener("click", () => {
-  const mes = parseInt(mesSelect.value);
-  const anio = parseInt(anioSelect.value);
-  cargarFacturas(mes, anio);
-});
-break;
+  // Filtro manual
+  filtrarBtn.addEventListener("click", () => {
+    const mes = parseInt(mesSelect.value);
+    const anio = parseInt(anioSelect.value);
+    cargarFacturas(mes, anio);
+  });
+  break;
+
 
 case "facturacion":
   title.textContent = "Facturación";
@@ -566,74 +567,64 @@ form.addEventListener('submit', async (e) => {
     condicion_iva_texto
   };
 
-  try {
-    const dbResponse = await fetch('/api/facturas', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-      },
-      body: JSON.stringify(facturaPayload)
-    });
+try {
+  // 👉 Guardar en la base de datos
+  const dbResponse = await fetch('/api/facturas', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+    },
+    body: JSON.stringify(facturaPayload)
+  });
 
-    const dbData = await dbResponse.json();
+  const dbData = await dbResponse.json();
 
-    if (!dbResponse.ok) {
-      throw new Error(`Error al guardar en base de datos: ${dbData.message || 'Error desconocido'}`);
-    }
+  if (!dbResponse.ok) {
+    throw new Error(`Error al guardar en base de datos: ${dbData.message || 'Error desconocido'}`);
+  }
 
-    const notifResponse = await fetch('/api/facturas', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-      },
-      body: JSON.stringify(facturaPayload)
-    });
+  // 👉 Emitir en AFIP
+  const afipResponse = await fetch('/api/afip/emitir', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+    },
+    body: JSON.stringify(facturaPayload)
+  });
 
-    const notifData = await notifResponse.json();
+  if (!afipResponse.ok) {
+    const errorText = await afipResponse.text();
+    throw new Error(`Factura guardada pero falló la conexión con AFIP: ${errorText}`);
+  }
 
-    if (!notifResponse.ok) {
-      throw new Error(`Factura guardada pero no se pudo notificar: ${notifData.message || 'Error en la notificación'}`);
-    }
+  // ✅ Descargar el PDF generado
+  const pdfBlob = await afipResponse.blob();
+  const url = window.URL.createObjectURL(pdfBlob);
 
-   // console.log('Payload enviado a AFIP:', facturaPayload);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `factura.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 
-const afipResponse = await fetch('/api/afip/emitir', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-  },
-  body: JSON.stringify(facturaPayload)
-});
+  window.URL.revokeObjectURL(url);
 
-if (!afipResponse.ok) {
-  const errorText = await afipResponse.text();
-  throw new Error(`Factura guardada pero falló la conexión con AFIP: ${errorText}`);
-}
+  resultDiv.innerHTML = `
+    ✅ <strong>Factura registrada correctamente</strong><br>
+    El archivo PDF fue generado y descargado correctamente.
+  `;
 
-// ✅ Directamente obtenés el PDF
-const pdfBlob = await afipResponse.blob();
+  form.reset();
 
-const url = window.URL.createObjectURL(pdfBlob);
-const link = document.createElement('a');
-link.href = url;
-link.download = `factura.pdf`;
-document.body.appendChild(link);
-link.click();
-document.body.removeChild(link);
-window.URL.revokeObjectURL(url);
-
-resultDiv.innerHTML = `
-  ✅ <strong>Factura registrada correctamente</strong><br>
-  El archivo PDF fue generado y descargado correctamente.
-`;
-
-    form.reset();
-  } catch (error) {
-    resultDiv.innerHTML = `❌ ${error.message}`;
-  } finally {
+} catch (error) {
+  console.error("❌ Error en el proceso:", error);
+  resultDiv.innerHTML = `
+    ❌ <strong>Error:</strong> ${error.message}
+  `;
+} finally {
     emitirBtn.disabled = false;
     btnText.textContent = 'Generar Factura';
     btnSpinner.classList.add('hidden');
