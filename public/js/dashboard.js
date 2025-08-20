@@ -374,9 +374,9 @@ setTimeout(() => {
     const btnSpinner = document.getElementById('btnSpinner');
 
     // Mostrar opciones del tipo de documento según IVA
-      condicionIVASelect.addEventListener('change', () => {
+    condicionIVASelect.addEventListener('change', () => {
       const valor = condicionIVASelect.value;
-      tipoDocumentoSelect.innerHTML = ''; // Limpia opciones
+      tipoDocumentoSelect.innerHTML = '';
 
       if (valor === '2') {
         // Responsable Monotributo
@@ -392,77 +392,71 @@ setTimeout(() => {
         tipoDocumentoContainer.style.display = 'block';
         tipoDocumentoSelect.innerHTML = `<option value="80">CUIT</option>`;
       } else {
-        // Consumidor Final u otros
         tipoDocumentoContainer.style.display = 'block';
         tipoDocumentoSelect.innerHTML = `<option value="99">Consumidor Final</option>`;
       }
     });
 
+    // Consulta automática al padrón AFIP
+    clienteCuitInput.addEventListener('blur', async () => {
+      const tipoDoc = tipoDocumentoSelect.value;
+      const nroDoc = clienteCuitInput.value.trim();
 
-      // Consulta automática al padrón AFIP
-      clienteCuitInput.addEventListener('blur', async () => {
-        const tipoDoc = tipoDocumentoSelect.value;
-        const nroDoc = clienteCuitInput.value.trim();
+      if (tipoDoc !== '80') return;
+      if (!/^\d{11}$/.test(nroDoc)) return;
 
-        if (tipoDoc !== '80') return; // Solo CUIT
-        if (!/^\d{11}$/.test(nroDoc)) return;
+      razonSocialInput.value = '';
+      direccionInput.value = '';
+      razonSocialInput.readOnly = true;
+      direccionInput.readOnly = true;
+      padronErrorDiv.style.display = 'none';
 
-        razonSocialInput.value = '';
-        direccionInput.value = '';
-        razonSocialInput.readOnly = true;
-        direccionInput.readOnly = true;
-        padronErrorDiv.style.display = 'none'; // Oculta mensaje antes de consultar
-
-        try {
-          const res = await fetch(`/api/afip/padron/${nroDoc}`, {
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-          });
-
-          const data = await res.json();
-
-          if (res.ok && data.razonSocial) {
-            razonSocialInput.value = data.razonSocial || '';
-            direccionInput.value = data.domicilioFiscal?.direccion || '';
-            razonSocialInput.readOnly = true;
-            direccionInput.readOnly = true;
-          } else {
-            razonSocialInput.readOnly = false;
-            direccionInput.readOnly = false;
-            padronErrorDiv.style.display = 'block';
-
-            // Ocultar el mensaje después de 5 segundos
-            setTimeout(() => {
-              padronErrorDiv.style.display = 'none';
-            }, 5000);
+      try {
+        const res = await fetch(`/api/afip/padron/${nroDoc}`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
-        } catch (err) {
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.razonSocial) {
+          razonSocialInput.value = data.razonSocial || '';
+          direccionInput.value = data.domicilioFiscal?.direccion || '';
+          razonSocialInput.readOnly = true;
+          direccionInput.readOnly = true;
+        } else {
           razonSocialInput.readOnly = false;
           direccionInput.readOnly = false;
           padronErrorDiv.style.display = 'block';
-
-          // Ocultar el mensaje después de 5 segundos
           setTimeout(() => {
             padronErrorDiv.style.display = 'none';
           }, 5000);
         }
-      });
+      } catch (err) {
+        razonSocialInput.readOnly = false;
+        direccionInput.readOnly = false;
+        padronErrorDiv.style.display = 'block';
+        setTimeout(() => {
+          padronErrorDiv.style.display = 'none';
+        }, 5000);
+      }
+    });
 
-      // Mostrar u ocultar fechas según el concepto seleccionado
-      conceptoSelect.addEventListener('change', () => {
-        const valor = parseInt(conceptoSelect.value);
-        if (valor === 2 || valor === 3) {
-          fechasServicioDiv.style.display = 'block';
-        } else {
-          fechasServicioDiv.style.display = 'none';
-        }
-      });
+    // Mostrar u ocultar fechas según el concepto
+    conceptoSelect.addEventListener('change', () => {
+      const valor = parseInt(conceptoSelect.value);
+      if (valor === 2 || valor === 3) {
+        fechasServicioDiv.style.display = 'block';
+      } else {
+        fechasServicioDiv.style.display = 'none';
+      }
+    });
 
-      function actualizarPrecioTotal() {
+    function actualizarPrecioTotal() {
       const cantidad = parseFloat(cantidadInput.value);
       const precioUnitario = parseFloat(precioUnitarioInput.value);
-      
+
       if (!isNaN(cantidad) && !isNaN(precioUnitario)) {
         const total = cantidad * precioUnitario;
         precioTotalInput.value = total.toFixed(2);
@@ -473,164 +467,144 @@ setTimeout(() => {
 
     cantidadInput.addEventListener('input', actualizarPrecioTotal);
     precioUnitarioInput.addEventListener('input', actualizarPrecioTotal);
-
-    // Ejecutar al cargar
     actualizarPrecioTotal();
 
     // Envío del formulario
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-  const formData = new FormData(form);
-  const cuit_usuario = formData.get('cuit_usuario');
-  const cliente_cuit = formData.get('cliente_cuit');
-  const tipo_documento = parseInt(formData.get('tipo_documento'));
-  const tipo_cbte = parseInt(formData.get('tipo_cbte'));
-  const descripcion = formData.get('descripcion');
-  const cantidad = parseFloat(formData.get('cantidad'));
-  const precio_unitario = parseFloat(formData.get('precio_unitario'));
-  const importe = cantidad * precio_unitario;
-  const fecha = formData.get('fecha');
-  const razonSocial = formData.get('razonSocial');
-  const direccion = formData.get('direccion');
-  const concepto = parseInt(formData.get('concepto')) || 1;
-  const fecha_serv_desde = formData.get('fecha_serv_desde') || null;
-  const fecha_serv_hasta = formData.get('fecha_serv_hasta') || null;
-  const fecha_venc_pago = formData.get('fecha_venc_pago') || null;
+      const formData = new FormData(form);
+      const cuit_usuario = formData.get('cuit_usuario');
+      const cliente_cuit = formData.get('cliente_cuit');
+      const tipo_documento = parseInt(formData.get('tipo_documento'));
+      const tipo_cbte = parseInt(formData.get('tipo_cbte'));
+      const descripcion = formData.get('descripcion');
+      const cantidad = parseFloat(formData.get('cantidad'));
+      const precio_unitario = parseFloat(formData.get('precio_unitario'));
+      const importe = cantidad * precio_unitario;
+      const fecha = formData.get('fecha');
+      const razonSocial = formData.get('razonSocial');
+      const direccion = formData.get('direccion');
+      const concepto = parseInt(formData.get('concepto')) || 1;
+      const fecha_serv_desde = formData.get('fecha_serv_desde') || null;
+      const fecha_serv_hasta = formData.get('fecha_serv_hasta') || null;
+      const fecha_venc_pago = formData.get('fecha_venc_pago') || null;
 
-  const condicionIVASelect = document.getElementById('condicion_iva');
-  const condicion_iva = condicionIVASelect.value;
-  const condicion_iva_texto = condicionIVASelect.options[condicionIVASelect.selectedIndex]?.text || '';
+      const condicionIVASelect = document.getElementById('condicion_iva');
+      const condicion_iva = condicionIVASelect.value;
+      const condicion_iva_texto = condicionIVASelect.options[condicionIVASelect.selectedIndex]?.text || '';
 
-  // 🔄 Obtener datos fiscales actualizados desde el backend
-  let nombre = '';
-  let nombre_fantasia = '';
-  let domicilio_fiscal = '';
-  let inicio_actividades = '';
+      // 🔄 Obtener datos fiscales actualizados desde el backend
+      let nombre = '';
+      let nombre_fantasia = '';
+      let domicilio_fiscal = '';
+      let inicio_actividades = '';
 
-  try {
-    const res = await fetch('/api/perfil/datos-fiscales', {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      try {
+        const res = await fetch('/api/perfil/datos-fiscales', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+
+        if (!res.ok) throw new Error('No se pudieron obtener los datos fiscales');
+
+        const datos = await res.json();
+
+        nombre = datos.nombre || '';
+        nombre_fantasia = datos.nombre_fantasia || '';
+        domicilio_fiscal = datos.domicilio_fiscal || '';
+        inicio_actividades = datos.inicio_actividades || '';
+      } catch (err) {
+        resultDiv.innerHTML = `❌ Error al obtener datos fiscales: ${err.message}`;
+        return;
+      }
+
+      // Desactivar botón y mostrar spinner
+      emitirBtn.disabled = true;
+      btnText.textContent = 'Generando...';
+      btnSpinner.classList.remove('hidden');
+
+      if (
+        !cuit_usuario || !cliente_cuit || isNaN(tipo_cbte) || !fecha ||
+        !descripcion || isNaN(cantidad) || isNaN(precio_unitario)
+      ) {
+        resultDiv.innerHTML = `❌ Por favor completá todos los campos correctamente.`;
+        return;
+      }
+
+      const facturaPayload = {
+        cuit_usuario,
+        cliente_cuit,
+        tipo_cbte,
+        tipo_documento,
+        descripcion,
+        cantidad,
+        precio_unitario,
+        importe,
+        fecha,
+        razonSocial,
+        direccion,
+        concepto,
+        fecha_serv_desde,
+        fecha_serv_hasta,
+        fecha_venc_pago,
+        nombre,
+        nombre_fantasia,
+        domicilio_fiscal,
+        inicio_actividades,
+        condicion_iva,
+        condicion_iva_texto
+      };
+
+      try {
+        // 👉 Emitir en AFIP (el backend ya guarda en DB)
+        const afipResponse = await fetch('/api/afip/emitir', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          },
+          body: JSON.stringify(facturaPayload)
+        });
+
+        if (!afipResponse.ok) {
+          const errorText = await afipResponse.text();
+          throw new Error(`Falló la conexión con AFIP: ${errorText}`);
+        }
+
+        // ✅ Descargar PDF generado
+        const pdfBlob = await afipResponse.blob();
+        const url = window.URL.createObjectURL(pdfBlob);
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `factura.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        window.URL.revokeObjectURL(url);
+
+        resultDiv.innerHTML = `
+          ✅ <strong>Factura registrada correctamente</strong><br>
+          El archivo PDF fue generado y descargado correctamente.
+        `;
+
+        form.reset();
+
+      } catch (error) {
+        console.error("❌ Error en el proceso:", error);
+        resultDiv.innerHTML = `
+          ❌ <strong>Error:</strong> ${error.message}
+        `;
+      } finally {
+        emitirBtn.disabled = false;
+        btnText.textContent = 'Generar Factura';
+        btnSpinner.classList.add('hidden');
       }
     });
-
-    if (!res.ok) throw new Error('No se pudieron obtener los datos fiscales');
-
-    const datos = await res.json();
-
-    nombre = datos.nombre || '';
-    nombre_fantasia = datos.nombre_fantasia || '';
-    domicilio_fiscal = datos.domicilio_fiscal || '';
-    inicio_actividades = datos.inicio_actividades || '';
-  } catch (err) {
-    resultDiv.innerHTML = `❌ Error al obtener datos fiscales: ${err.message}`;
-    return;
   }
-
-  // const nombreFinal = (nombre_fantasia && nombre_fantasia.trim() !== '') ? nombre_fantasia : nombre;
-
-  // Desactivar botón y mostrar spinner
-  emitirBtn.disabled = true;
-  btnText.textContent = 'Generando...';
-  btnSpinner.classList.remove('hidden');
-
-  if (
-    !cuit_usuario || !cliente_cuit || isNaN(tipo_cbte) || !fecha ||
-    !descripcion || isNaN(cantidad) || isNaN(precio_unitario)
-  ) {
-    resultDiv.innerHTML = `❌ Por favor completá todos los campos correctamente.`;
-    return;
-  }
-
-  const facturaPayload = {
-    cuit_usuario,
-    cliente_cuit,
-    tipo_cbte,
-    tipo_documento,
-    descripcion,
-    cantidad,
-    precio_unitario,
-    importe,
-    fecha,
-    razonSocial,
-    direccion,
-    concepto,
-    fecha_serv_desde,
-    fecha_serv_hasta,
-    fecha_venc_pago,
-    nombre,
-    nombre_fantasia,
-    domicilio_fiscal,
-    inicio_actividades,
-    condicion_iva,
-    condicion_iva_texto
-  };
-
-try {
-  // 👉 Guardar en la base de datos
-  const dbResponse = await fetch('/api/facturas', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-    },
-    body: JSON.stringify(facturaPayload)
-  });
-
-  const dbData = await dbResponse.json();
-
-  if (!dbResponse.ok) {
-    throw new Error(`Error al guardar en base de datos: ${dbData.message || 'Error desconocido'}`);
-  }
-
-  // 👉 Emitir en AFIP
-  const afipResponse = await fetch('/api/afip/emitir', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-    },
-    body: JSON.stringify(facturaPayload)
-  });
-
-  if (!afipResponse.ok) {
-    const errorText = await afipResponse.text();
-    throw new Error(`Factura guardada pero falló la conexión con AFIP: ${errorText}`);
-  }
-
-  // ✅ Descargar el PDF generado
-  const pdfBlob = await afipResponse.blob();
-  const url = window.URL.createObjectURL(pdfBlob);
-
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `factura.pdf`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-
-  window.URL.revokeObjectURL(url);
-
-  resultDiv.innerHTML = `
-    ✅ <strong>Factura registrada correctamente</strong><br>
-    El archivo PDF fue generado y descargado correctamente.
-  `;
-
-  form.reset();
-
-} catch (error) {
-  console.error("❌ Error en el proceso:", error);
-  resultDiv.innerHTML = `
-    ❌ <strong>Error:</strong> ${error.message}
-  `;
-} finally {
-    emitirBtn.disabled = false;
-    btnText.textContent = 'Generar Factura';
-    btnSpinner.classList.add('hidden');
-  }
-});
-};
 }, 250);
 break;
 
