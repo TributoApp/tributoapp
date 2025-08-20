@@ -130,19 +130,20 @@ const cargarFacturas = (mes, anio) => {
     </tr>
   `;
 
-  fetch('/api/facturas', {
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-    }
-  })
-    .then(res => res.json())
-    .then(facturas => {
-      // Filtrar por mes y año
-      const filtradas = facturas.filter(f => {
-        if (!f.fecha) return false;
-        const [yyyy, mm] = f.fecha.split('-');
-        return parseInt(mm, 10) === mes && parseInt(yyyy, 10) === anio;
-      });
+fetch('/api/facturas', {
+  headers: {
+    'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+  }
+})
+  .then(res => res.json())
+  .then(facturas => {
+    // Filtrar por mes y año
+    const filtradas = facturas.filter(f => {
+      if (!f.fecha) return false;
+      const fechaObj = new Date(f.fecha);
+      return (fechaObj.getMonth() + 1) === mes &&
+             fechaObj.getFullYear() === anio;
+    });
 
       const total = filtradas.reduce((sum, f) => sum + parseFloat(f.importe), 0);
       const porcentaje = parseFloat(localStorage.getItem('iibb')) || 3.5;
