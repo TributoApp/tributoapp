@@ -170,12 +170,12 @@ exports.emitirFactura = async (req, res) => {
     await browser.close();
 
     // 📌 Guardar en la base de datos
-    const pdfBase64 = pdfBuffer.toString('base64');
     await pool.query(
-      `INSERT INTO facturas_solicitadas (cuit_usuario, cliente_cuit, importe, fecha, pdf_url)
-       VALUES ($1, $2, $3, $4, $5)`,
-      [cuit_usuario, cliente_cuit, importe, fecha, pdfBase64]
+      `INSERT INTO facturas_solicitadas (cuit_usuario, cliente_cuit, importe, fecha, pdf_data)
+      VALUES ($1, $2, $3, $4, $5)`,
+      [cuit_usuario, cliente_cuit, importe, fecha, pdfBuffer]  // <-- Guardás el buffer binario directo
     );
+
 
     // 📌 Responder con el PDF
     res.set({

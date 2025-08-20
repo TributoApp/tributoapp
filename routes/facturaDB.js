@@ -4,21 +4,30 @@ const router = express.Router();
 const pool = require('./db'); // conexión a PostgreSQL
 const verifyToken = require('../middleware/authMiddleware');
 
-// Crear una factura
+// Crear una factura con PDF en la DB
 router.post('/facturas', verifyToken, async (req, res) => {
   const { cuit_usuario, cliente_cuit, importe, fecha } = req.body;
 
   try {
-    // Generar el PDF (aquí deberías integrar tu función real)
-    const pdfUrl = `/uploads/factura_${Date.now()}.pdf`;
+    // 🔹 Generar el contenido del PDF (ejemplo simple)
+    // En producción deberías usar pdfkit / pdfmake para armarlo bien
+    const contenido = `
+      FACTURA
+      ------------
+      CUIT: ${cuit_usuario}
+      Cliente CUIT: ${cliente_cuit}
+      Importe: $${importe}
+      Fecha: ${fecha}
+    `;
+    const pdfBuffer = Buffer.from(contenido, 'utf-8'); // reemplazar por buffer real de PDF
 
-    // Insertar en la base de datos
+    // Guardar en DB
     const result = await pool.query(
       `INSERT INTO facturas_solicitadas
-       (cuit_usuario, cliente_cuit, importe, fecha, pdf_url)
+       (cuit_usuario, cliente_cuit, importe, fecha, pdf_data)
        VALUES ($1, $2, $3, $4, $5)
-       RETURNING id, cliente_cuit, importe, fecha, pdf_url`,
-      [cuit_usuario, cliente_cuit, importe, fecha, pdfUrl]
+       RETURNING id, cliente_cuit, importe, fecha`,
+      [cuit_usuario, cliente_cuit, importe, fecha, pdfBuffer]
     );
 
     res.json(result.rows[0]);
@@ -31,20 +40,18 @@ router.post('/facturas', verifyToken, async (req, res) => {
 // Obtener facturas del usuario o todas si es admin
 router.get('/facturas', verifyToken, async (req, res) => {
   const cuit_usuario = req.user.cuit;
-  const CUIT_ADMIN = '20387758578'; // Ajustalo según tu admin
+  const CUIT_ADMIN = '20387758578';
 
   try {
     let result;
 
     if (cuit_usuario === CUIT_ADMIN) {
-      // Admin: obtener todas las facturas
       result = await pool.query(
-        'SELECT id, cuit_usuario, cliente_cuit, importe, fecha, pdf_url FROM facturas_solicitadas ORDER BY fecha DESC'
+        'SELECT id, cuit_usuario, cliente_cuit, importe, fecha FROM facturas_solicitadas ORDER BY fecha DESC'
       );
     } else {
-      // Usuario normal: solo sus facturas
       result = await pool.query(
-        'SELECT id, cliente_cuit, importe, fecha, pdf_url FROM facturas_solicitadas WHERE cuit_usuario = $1 ORDER BY fecha DESC',
+        'SELECT id, cliente_cuit, importe, fecha FROM facturas_solicitadas WHERE cuit_usuario = $1 ORDER BY fecha DESC',
         [cuit_usuario]
       );
     }
@@ -53,6 +60,31 @@ router.get('/facturas', verifyToken, async (req, res) => {
   } catch (error) {
     console.error("❌ Error al obtener facturas:", error);
     res.status(500).send("Error al obtener facturas");
+  }
+});
+
+// 📄 Nuevo endpoint: devolver PDF desde DB
+router.get('/facturas/:id/pdf', verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      'SELECT pdf_data FROM facturas_solicitadas WHERE id = $1',
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Factura no encontrada' });
+    }
+
+    const pdfBuffer = result.rows[0].pdf_data;
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="factura_${id}.pdf"`);
+    res.send(pdfBuffer);
+  } catch (err) {
+    console.error("❌ Error al obtener PDF:", err);
+    res.status(500).json({ error: 'Error al obtener PDF' });
   }
 });
 
