@@ -209,6 +209,7 @@ const cargarFacturas = (mes, anio) => {
               : `<span class="text-gray-400 italic">No disponible</span>`}
           </td>
         `;
+
         tablaFacturas.appendChild(tr);
       });
     })
@@ -224,6 +225,28 @@ const cargarFacturas = (mes, anio) => {
     });
 
 };
+
+// 👉 Función para ver PDF con autorización
+function verPDF(id) {
+  fetch(`/api/facturas/${id}/pdf`, {
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+    }
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("Error al descargar PDF");
+      return res.blob();
+    })
+    .then(blob => {
+      const url = URL.createObjectURL(blob);
+      window.open(url, "_blank"); // abrir en nueva pestaña
+    })
+    .catch(err => {
+      console.error("❌ Error al ver PDF:", err);
+      alert("No se pudo abrir el PDF. Intenta nuevamente.");
+    });
+}
+
 
 
 // Inicial
