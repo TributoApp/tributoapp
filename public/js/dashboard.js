@@ -119,6 +119,27 @@ const mesSelect = document.getElementById('mes');
 const anioSelect = document.getElementById('anio');
 const filtrarBtn = document.getElementById('filtrarBtn');
 
+// 👉 Función para abrir el PDF con el token
+function verPDF(id) {
+  fetch(`/api/facturas/${id}/pdf`, {
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+    }
+  })
+  .then(res => {
+    if (!res.ok) throw new Error("Error al obtener PDF");
+    return res.blob();
+  })
+  .then(blob => {
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+  })
+  .catch(err => {
+    console.error("❌ Error PDF:", err);
+    alert("No se pudo abrir el PDF.");
+  });
+}
+
 const cargarFacturas = (mes, anio) => {
   resumenFact.textContent = "$0.00";
   resumenIIBB.textContent = "$0.00";
@@ -130,79 +151,80 @@ const cargarFacturas = (mes, anio) => {
     </tr>
   `;
 
-fetch('/api/facturas', {
-  headers: {
-    'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-  }
-})
-  .then(res => res.json())
-  .then(facturas => {
-    // Filtrar por mes y año usando Date
-    const filtradas = facturas.filter(f => {
-      if (!f.fecha) return false;
-      const fechaObj = new Date(f.fecha);
-      return (fechaObj.getUTCMonth() + 1) === mes &&
-             fechaObj.getUTCFullYear() === anio;
-    });
+  fetch('/api/facturas', {
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+    }
+  })
+    .then(res => res.json())
+    .then(facturas => {
+      // Filtrar por mes y año usando Date
+      const filtradas = facturas.filter(f => {
+        if (!f.fecha) return false;
+        const fechaObj = new Date(f.fecha);
+        return (fechaObj.getUTCMonth() + 1) === mes &&
+               fechaObj.getUTCFullYear() === anio;
+      });
 
-    const total = filtradas.reduce((sum, f) => sum + parseFloat(f.importe), 0);
-    const porcentaje = parseFloat(localStorage.getItem('iibb')) || 3.5;
-    const iibb = total * (porcentaje / 100);
+      const total = filtradas.reduce((sum, f) => sum + parseFloat(f.importe), 0);
+      const porcentaje = parseFloat(localStorage.getItem('iibb')) || 3.5;
+      const iibb = total * (porcentaje / 100);
 
-    resumenFact.textContent = `$${total.toFixed(2)}`;
-    resumenIIBB.textContent = `$${iibb.toFixed(2)}`;
+      resumenFact.textContent = `$${total.toFixed(2)}`;
+      resumenIIBB.textContent = `$${iibb.toFixed(2)}`;
 
-    if (filtradas.length === 0) {
+      if (filtradas.length === 0) {
+        tablaFacturas.innerHTML = `
+          <tr>
+            <td colspan="4" class="px-4 py-3 text-center text-gray-500">
+              No hay facturas registradas para este mes.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tablaFacturas.innerHTML = "";
+      filtradas.forEach(f => {
+        // Formatear fecha DD/MM/YYYY
+        let fechaFormateada = "";
+        if (f.fecha) {
+          const fechaObj = new Date(f.fecha);
+          const dd = String(fechaObj.getUTCDate()).padStart(2, '0');
+          const mm = String(fechaObj.getUTCMonth() + 1).padStart(2, '0');
+          const yyyy = fechaObj.getUTCFullYear();
+          fechaFormateada = `${dd}/${mm}/${yyyy}`;
+        }
+
+        const tr = document.createElement("tr");
+        tr.className = "border-b hover:bg-gray-50";
+
+        tr.innerHTML = `
+          <td class="px-4 py-2 border">${fechaFormateada}</td>
+          <td class="px-4 py-2 border">${f.cliente_cuit}</td>
+          <td class="px-4 py-2 border">$${Number(f.importe).toFixed(2)}</td>
+          <td class="px-4 py-2 border">
+            ${f.id
+              ? `<button onclick="verPDF(${f.id})" class="text-blue-600 underline">📄 Ver PDF</button>`
+              : `<span class="text-gray-400 italic">No disponible</span>`}
+          </td>
+        `;
+        tablaFacturas.appendChild(tr);
+      });
+    })
+    .catch(err => {
+      console.error("❌ Error al cargar facturas:", err);
       tablaFacturas.innerHTML = `
         <tr>
-          <td colspan="4" class="px-4 py-3 text-center text-gray-500">
-            No hay facturas registradas para este mes.
+          <td colspan="4" class="px-4 py-3 text-center text-red-600">
+            ❌ Error al cargar facturas.
           </td>
         </tr>
       `;
-      return;
-    }
-
-    tablaFacturas.innerHTML = "";
-    filtradas.forEach(f => {
-      // Formatear fecha DD/MM/YYYY
-      let fechaFormateada = "";
-      if (f.fecha) {
-        const fechaObj = new Date(f.fecha);
-        const dd = String(fechaObj.getUTCDate()).padStart(2, '0');
-        const mm = String(fechaObj.getUTCMonth() + 1).padStart(2, '0');
-        const yyyy = fechaObj.getUTCFullYear();
-        fechaFormateada = `${dd}/${mm}/${yyyy}`;
-      }
-
-      const tr = document.createElement("tr");
-      tr.className = "border-b hover:bg-gray-50";
-
-      tr.innerHTML = `
-        <td class="px-4 py-2 border">${fechaFormateada}</td>
-        <td class="px-4 py-2 border">${f.cliente_cuit}</td>
-        <td class="px-4 py-2 border">$${Number(f.importe).toFixed(2)}</td>
-        <td class="px-4 py-2 border">
-          ${f.id
-            ? `<a href="/api/facturas/${f.id}/pdf" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">📄 Ver PDF</a>`
-            : `<span class="text-gray-400 italic">No disponible</span>`}
-        </td>
-      `;
-      tablaFacturas.appendChild(tr);
     });
-  })
-  .catch(err => {
-    console.error("❌ Error al cargar facturas:", err);
-    tablaFacturas.innerHTML = `
-      <tr>
-        <td colspan="4" class="px-4 py-3 text-center text-red-600">
-          ❌ Error al cargar facturas.
-        </td>
-      </tr>
-    `;
-  });
 
 };
+
 
 // Inicial
 cargarFacturas(new Date().getMonth() + 1, new Date().getFullYear());
