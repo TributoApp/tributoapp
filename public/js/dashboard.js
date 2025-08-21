@@ -137,11 +137,12 @@ fetch('/api/facturas', {
 })
   .then(res => res.json())
   .then(facturas => {
-    // Filtrar por mes y año usando split de la fecha
+    // Filtrar por mes y año usando Date
     const filtradas = facturas.filter(f => {
       if (!f.fecha) return false;
-      const [yyyy, mm, dd] = f.fecha.split('-');
-      return parseInt(mm, 10) === mes && parseInt(yyyy, 10) === anio;
+      const fechaObj = new Date(f.fecha);
+      return (fechaObj.getUTCMonth() + 1) === mes &&
+             fechaObj.getUTCFullYear() === anio;
     });
 
     const total = filtradas.reduce((sum, f) => sum + parseFloat(f.importe), 0);
@@ -167,7 +168,10 @@ fetch('/api/facturas', {
       // Formatear fecha DD/MM/YYYY
       let fechaFormateada = "";
       if (f.fecha) {
-        const [yyyy, mm, dd] = f.fecha.split('-');
+        const fechaObj = new Date(f.fecha);
+        const dd = String(fechaObj.getUTCDate()).padStart(2, '0');
+        const mm = String(fechaObj.getUTCMonth() + 1).padStart(2, '0');
+        const yyyy = fechaObj.getUTCFullYear();
         fechaFormateada = `${dd}/${mm}/${yyyy}`;
       }
 
