@@ -119,26 +119,26 @@ const mesSelect = document.getElementById('mes');
 const anioSelect = document.getElementById('anio');
 const filtrarBtn = document.getElementById('filtrarBtn');
 
-// 👉 Función para abrir el PDF con el token
-function verPDF(id) {
+// 👉 Función global para abrir el PDF con el token
+window.verPDF = function(id) {
   fetch(`/api/facturas/${id}/pdf`, {
     headers: {
       'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
     }
   })
-  .then(res => {
-    if (!res.ok) throw new Error("Error al obtener PDF");
-    return res.blob();
-  })
-  .then(blob => {
-    const url = URL.createObjectURL(blob);
-    window.open(url, '_blank');
-  })
-  .catch(err => {
-    console.error("❌ Error PDF:", err);
-    alert("No se pudo abrir el PDF.");
-  });
-}
+    .then(res => {
+      if (!res.ok) throw new Error("Error al descargar PDF");
+      return res.blob();
+    })
+    .then(blob => {
+      const url = URL.createObjectURL(blob);
+      window.open(url, "_blank"); // abrir en nueva pestaña
+    })
+    .catch(err => {
+      console.error("❌ Error al ver PDF:", err);
+      alert("No se pudo abrir el PDF. Intenta nuevamente.");
+    });
+};
 
 const cargarFacturas = (mes, anio) => {
   resumenFact.textContent = "$0.00";
@@ -226,29 +226,6 @@ const cargarFacturas = (mes, anio) => {
 
 };
 
-// 👉 Función para ver PDF con autorización
-function verPDF(id) {
-  fetch(`/api/facturas/${id}/pdf`, {
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-    }
-  })
-    .then(res => {
-      if (!res.ok) throw new Error("Error al descargar PDF");
-      return res.blob();
-    })
-    .then(blob => {
-      const url = URL.createObjectURL(blob);
-      window.open(url, "_blank"); // abrir en nueva pestaña
-    })
-    .catch(err => {
-      console.error("❌ Error al ver PDF:", err);
-      alert("No se pudo abrir el PDF. Intenta nuevamente.");
-    });
-}
-
-
-
 // Inicial
 cargarFacturas(new Date().getMonth() + 1, new Date().getFullYear());
 
@@ -258,6 +235,7 @@ filtrarBtn.addEventListener("click", () => {
   const anio = parseInt(anioSelect.value);
   cargarFacturas(mes, anio);
 });
+
 break;
 
 
